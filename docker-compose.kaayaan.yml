@@ -1,0 +1,134 @@
+# Kaayaan Production Docker Compose Configuration
+# MCP Crypto Trading Server - Production Deployment
+# Integrates with existing Kaayaan infrastructure network
+
+version: '3.8'
+
+services:
+  kaayaan-crypto-trading:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      target: final
+    container_name: kaayaan-crypto-trading
+    image: kaayaan/mcp-crypto-trading:2.0.0
+    
+    restart: unless-stopped
+    
+    # MCP requires interactive terminal for stdio protocol
+    stdin_open: true
+    tty: true
+    
+    # Environment variables for Kaayaan infrastructure
+    environment:
+      # Kaayaan Infrastructure
+      - MONGODB_URI=mongodb://username:password@mongodb:27017/database
+      - REDIS_URL=redis://:password@redis:6379
+      - DATABASE_URL=postgresql://user:password@postgresql:5432/database
+      
+      # WhatsApp API (WAHA)
+      - WHATSAPP_BASE_URL=https://your-whatsapp-api.com
+      - WHATSAPP_SESSION=your_session_id
+      
+      # API Keys (set via secrets or .env.production)
+      - BINANCE_API_KEY=${BINANCE_API_KEY:-}
+      - BINANCE_SECRET_KEY=${BINANCE_SECRET_KEY:-}
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY:-}
+      - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY:-}
+      
+      # Server Configuration
+      - MCP_SERVER_NAME=crypto-trading
+      - MCP_VERSION=2.0.0
+      - ENVIRONMENT=production
+      - TIMEZONE=Asia/Kuwait
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      
+      # Performance & Security
+      - MAX_WORKERS=4
+      - RATE_LIMIT_PER_MINUTE=30
+      - CACHE_TTL_SECONDS=300
+      - LOG_LEVEL=INFO
+    
+    # Connect to existing Kaayaan network
+    networks:
+      - kaayaan_default
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import asyncio; from infrastructure.kaayaan_factory import quick_health_check; exit(0 if asyncio.run(quick_health_check()).mongodb_status == 'healthy' else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Resource limits optimized for Kaayaan hardware (Ryzen 9 + 128GB RAM)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    # Volumes for data persistence
+    volumes:
+      - crypto_trading_data:/app/data
+      - crypto_trading_logs:/app/logs
+      - crypto_trading_cache:/app/cache
+    
+    # Dependency on Kaayaan infrastructure services
+    depends_on:
+      - mongodb
+      - redis
+      - postgresql
+    
+    # Security context
+    user: "1000:1000"
+    
+    # Labels for container management
+    labels:
+      - "com.kaayaan.service=crypto-trading"
+      - "com.kaayaan.version=2.0.0"
+      - "com.kaayaan.environment=production"
+      - "com.kaayaan.protocol=mcp-stdio"
+
+# Named volumes for data persistence
+volumes:
+  crypto_trading_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /var/lib/kaayaan/crypto-trading/data
+      o: bind
+  
+  crypto_trading_logs:
+    driver: local
+    driver_opts:
+      type: none  
+      device: /var/lib/kaayaan/crypto-trading/logs
+      o: bind
+      
+  crypto_trading_cache:
+    driver: local
+    driver_opts:
+      type: none
+      device: /var/lib/kaayaan/crypto-trading/cache
+      o: bind
+
+# Use existing Kaayaan network
+networks:
+  kaayaan_default:
+    external: true
+
+# Production secrets management (optional - use Docker secrets in swarm mode)
+secrets:
+  binance_api_key:
+    external: true
+  binance_secret_key:
+    external: true
+  coingecko_api_key:
+    external: true
+  coinmarketcap_api_key:
+    external: true

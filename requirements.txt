@@ -1,0 +1,112 @@
+# MCP Crypto Trading Server - Production Requirements
+# Optimized and pinned for stable production deployment
+# Last Updated: 2025-08-31
+
+# ======================================================================
+# CORE MCP & SERVER FRAMEWORK
+# ======================================================================
+mcp==2.1.0                               # Model Context Protocol - Latest stable
+pydantic==2.8.2                          # Data validation with performance improvements
+fastapi==0.112.0                         # Web framework (for future REST endpoints)
+uvicorn[standard]==0.30.0                # ASGI server
+
+# ======================================================================
+# ASYNC OPERATIONS & NETWORKING
+# ======================================================================
+aiohttp==3.10.3                          # Async HTTP client with security fixes
+aiofiles==24.1.0                         # Async file operations
+asyncio==3.4.3                           # Async programming support
+websockets==13.0.1                       # WebSocket support for real-time data
+
+# ======================================================================
+# CRYPTOCURRENCY DATA & ANALYSIS
+# ======================================================================
+pandas==2.2.2                            # Data manipulation and analysis
+numpy==2.0.1                             # Numerical computations with performance gains
+ccxt==4.3.77                             # Cryptocurrency exchange API library
+requests==2.32.3                         # HTTP requests for API calls
+
+# ======================================================================
+# DATABASE DRIVERS (PRODUCTION INFRASTRUCTURE)
+# ======================================================================
+motor==3.5.0                             # MongoDB async driver
+pymongo[srv]==4.8.0                      # MongoDB sync driver with DNS SRV support
+aioredis==2.0.1                          # Redis async client
+asyncpg==0.29.0                          # PostgreSQL async driver
+
+# ======================================================================
+# CONFIGURATION & ENVIRONMENT
+# ======================================================================
+python-dotenv==1.0.1                     # Environment variable management
+pydantic-settings==2.4.0                 # Settings management with validation
+
+# ======================================================================
+# LOGGING & MONITORING
+# ======================================================================
+structlog==24.4.0                        # Structured logging for production
+loguru==0.7.2                            # Enhanced logging capabilities
+
+# ======================================================================
+# SECURITY & CRYPTOGRAPHY
+# ======================================================================
+cryptography==43.0.0                     # Cryptographic utilities
+passlib[bcrypt]==1.7.4                   # Password hashing (if needed)
+
+# ======================================================================
+# JSON & DATA SERIALIZATION
+# ======================================================================
+ujson==5.10.0                            # Ultra-fast JSON parsing
+orjson==3.10.7                           # Fast JSON serialization
+
+# ======================================================================
+# DATE & TIME HANDLING
+# ======================================================================
+python-dateutil==2.9.0.post0             # Date/time extensions
+pytz==2024.1                             # Timezone support
+
+# ======================================================================
+# VALIDATION & TYPE CHECKING
+# ======================================================================
+email-validator==2.2.0                   # Email validation
+validators==0.33.0                       # General purpose validators
+
+# ======================================================================
+# MATHEMATICAL & STATISTICAL LIBRARIES
+# ======================================================================
+scipy==1.14.0                            # Scientific computing
+scikit-learn==1.5.1                      # Machine learning (for advanced analysis)
+statsmodels==0.14.2                      # Statistical analysis
+
+# ======================================================================
+# UTILITIES & HELPERS
+# ======================================================================
+click==8.1.7                             # Command line interface
+rich==13.7.1                             # Rich text and beautiful formatting
+tqdm==4.66.5                             # Progress bars for long operations
+
+# ======================================================================
+# DEVELOPMENT DEPENDENCIES (COMMENTED OUT FOR PRODUCTION)
+# ======================================================================
+# pytest==8.3.2                          # Testing framework
+# pytest-asyncio==0.23.8                 # Async testing support
+# black==24.8.0                          # Code formatting
+# mypy==1.11.1                           # Static type checking
+# ruff==0.6.2                            # Fast Python linter
+
+# ======================================================================
+# CONTAINER UTILITIES
+# ======================================================================
+# docker==7.1.0                          # Docker SDK (uncomment if needed)
+
+# ======================================================================
+# PERFORMANCE OPTIMIZATIONS
+# ======================================================================
+uvloop==0.20.0                           # High-performance event loop (Unix only)
+cachetools==5.4.0                        # Memory caching utilities
+
+# ======================================================================
+# OPTIONAL DEPENDENCIES (UNCOMMENT AS NEEDED)
+# ======================================================================
+# ta-lib==0.4.32                         # Technical analysis library (requires C dependencies)
+# prometheus-client==0.21.0              # Metrics collection
+# sentry-sdk[fastapi]==2.12.0            # Error tracking

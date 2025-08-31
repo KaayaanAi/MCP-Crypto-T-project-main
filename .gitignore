@@ -1,0 +1,141 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+
+# Security & Credentials  
+*.key
+*.pem
+*.p12
+*.pfx
+credentials/
+secrets/
+certs/
+config.ini
+auth.json
+.secrets
+api_keys.txt
+
+# Development & IDE
+.claude/
+.daddy/
+.qlty/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.spyderproject
+.spyproject
+.ropeproject
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+.directory
+
+# Logs & Debug
+logs/
+*.log
+log_*.txt
+debug.txt
+output.txt
+error.txt
+
+# Cache & Temporary
+.cache/
+.tmp/
+tmp/
+temp/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+data.db
+database.sql
+
+# Docker & Container
+.dockerignore
+docker-auth-fix.sh
+
+# Node.js (if applicable)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Documentation Build
+_build/
+.doctrees/
+
+# Production & Deployment
+backups/
+.production/
+deploy.log
+
+# Development Artifacts
+daddy_project.md
+test_outputs/
+legacy/
+archive/
+old/
+backup/
+
+# Editor Configs
+.editorconfig
+.prettierrc
+.eslintrc*
+
+# Package Manager
+pip-log.txt
+pip-delete-this-directory.txt
