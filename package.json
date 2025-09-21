@@ -1,0 +1,93 @@
+{
+  "name": "mcp-crypto-trading-project",
+  "version": "2.0.0",
+  "description": "Production-Ready MCP Crypto Trading Analysis Server - Enterprise-grade cryptocurrency trading analysis with real-time market data, technical indicators, and automated trading strategies",
+  "main": "mcp_server.py",
+  "scripts": {
+    "start": "python mcp_server.py",
+    "start:standalone": "python mcp_server_standalone.py",
+    "start:enterprise": "python mcp_enterprise_server.py",
+    "start:http": "python mcp_http_server.py",
+    "test": "python -m pytest tests/ -v",
+    "test:compliance": "python test_enterprise_compliance.py",
+    "test:mcp": "python validate_mcp_compliance.py",
+    "health": "python scripts/health_check.py",
+    "docker:build": "docker build -f Dockerfile.2025 -t mcp-crypto-trading:2.0.0 .",
+    "docker:run": "docker-compose -f docker-compose.production.yml up -d",
+    "docker:stop": "docker-compose -f docker-compose.production.yml down",
+    "docker:logs": "docker-compose -f docker-compose.production.yml logs -f mcp-crypto-server"
+  },
+  "keywords": [
+    "mcp",
+    "crypto",
+    "trading",
+    "analysis",
+    "bitcoin",
+    "ethereum",
+    "technical-analysis",
+    "automated-trading",
+    "machine-learning",
+    "real-time",
+    "api",
+    "server",
+    "enterprise",
+    "production-ready"
+  ],
+  "author": {
+    "name": "Kaayaan AI",
+    "email": "contact@kaayaanai.com",
+    "url": "https://github.com/kaayaanai"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaayaanai/mcp-crypto-trading-project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kaayaanai/mcp-crypto-trading-project/issues"
+  },
+  "homepage": "https://github.com/kaayaanai/mcp-crypto-trading-project#readme",
+  "engines": {
+    "python": ">=3.13.0",
+    "node": ">=18.0.0"
+  },
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "files": [
+    "src/",
+    "config/",
+    "scripts/",
+    "requirements.txt",
+    "requirements_mcp.txt",
+    "mcp_server.py",
+    "mcp_server_standalone.py",
+    "mcp_enterprise_server.py",
+    "mcp_http_server.py",
+    "docker-entrypoint.sh",
+    "Dockerfile.2025",
+    "docker-compose.production.yml"
+  ],
+  "directories": {
+    "lib": "./src",
+    "test": "./tests",
+    "doc": "./docs"
+  },
+  "config": {
+    "python_version": "3.13+",
+    "mcp_protocol": "2024-11-05",
+    "api_version": "v1",
+    "default_port": 8080,
+    "health_check_endpoint": "/health"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/kaayaanai"
+  }
+}

@@ -9,7 +9,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any, Union
 import motor.motor_asyncio as motor
-import aioredis
+import redis.asyncio as redis
 import asyncpg
 from dataclasses import asdict
 
@@ -25,8 +25,8 @@ class DatabaseManager:
     - PostgreSQL: Audit logs, user data, system metrics
     """
     
-    def __init__(self, mongodb_client: motor.AsyncIOMotorClient, 
-                 redis_client: aioredis.Redis, postgres_pool: asyncpg.Pool):
+    def __init__(self, mongodb_client: motor.AsyncIOMotorClient,
+                 redis_client: redis.Redis, postgres_pool: asyncpg.Pool):
         self.mongodb_client = mongodb_client
         self.redis_client = redis_client
         self.postgres_pool = postgres_pool

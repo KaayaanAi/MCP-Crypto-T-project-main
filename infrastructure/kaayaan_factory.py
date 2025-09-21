@@ -7,7 +7,7 @@ import asyncio
 import logging
 from typing import Tuple, Optional
 import motor.motor_asyncio as motor
-import aioredis
+import redis.asyncio as redis
 import asyncpg
 import aiohttp
 
@@ -38,7 +38,7 @@ class KaayaanInfrastructureFactory:
     
     def __init__(self):
         self._mongodb_client: Optional[motor.AsyncIOMotorClient] = None
-        self._redis_client: Optional[aioredis.Redis] = None
+        self._redis_client: Optional[redis.Redis] = None
         self._postgres_pool: Optional[asyncpg.Pool] = None
         self._http_session: Optional[aiohttp.ClientSession] = None
         self._initialized = False
@@ -50,7 +50,7 @@ class KaayaanInfrastructureFactory:
             
             # Initialize MongoDB
             self._mongodb_client = motor.AsyncIOMotorClient(
-                self.KAAYAAN_CONFIG["mongodb_uri"],
+                self.INFRASTRUCTURE_CONFIG["mongodb_uri"],
                 maxPoolSize=50,
                 minPoolSize=5,
                 serverSelectionTimeoutMS=5000,
@@ -63,8 +63,8 @@ class KaayaanInfrastructureFactory:
             logger.info("✅ MongoDB connection established")
             
             # Initialize Redis
-            self._redis_client = aioredis.from_url(
-                self.KAAYAAN_CONFIG["redis_url"],
+            self._redis_client = redis.from_url(
+                self.INFRASTRUCTURE_CONFIG["redis_url"],
                 encoding="utf-8",
                 decode_responses=True,
                 max_connections=20,
@@ -79,7 +79,7 @@ class KaayaanInfrastructureFactory:
             
             # Initialize PostgreSQL
             self._postgres_pool = await asyncpg.create_pool(
-                self.KAAYAAN_CONFIG["postgres_dsn"],
+                self.INFRASTRUCTURE_CONFIG["postgres_dsn"],
                 min_size=5,
                 max_size=20,
                 command_timeout=10,
@@ -147,8 +147,8 @@ class KaayaanInfrastructureFactory:
             raise RuntimeError("Infrastructure not initialized. Call initialize() first.")
         
         whatsapp_config = WhatsAppConfig(
-            base_url=self.KAAYAAN_CONFIG["whatsapp_base_url"],
-            session=self.KAAYAAN_CONFIG["whatsapp_session"],
+            base_url=self.INFRASTRUCTURE_CONFIG["whatsapp_base_url"],
+            session=self.INFRASTRUCTURE_CONFIG["whatsapp_session"],
             timeout_seconds=30
         )
         
@@ -262,7 +262,7 @@ class KaayaanInfrastructureFactory:
         # WhatsApp API health
         try:
             async with self._http_session.get(
-                f"{self.KAAYAAN_CONFIG['whatsapp_base_url']}/api/sessions",
+                f"{self.INFRASTRUCTURE_CONFIG['whatsapp_base_url']}/api/sessions",
                 timeout=10
             ) as response:
                 if response.status == 200:
@@ -324,17 +324,17 @@ class KaayaanInfrastructureFactory:
     def database_config(self) -> DatabaseConfig:
         """Get database configuration"""
         return DatabaseConfig(
-            mongodb_uri=self.KAAYAAN_CONFIG["mongodb_uri"],
-            redis_url=self.KAAYAAN_CONFIG["redis_url"],
-            postgres_dsn=self.KAAYAAN_CONFIG["postgres_dsn"]
+            mongodb_uri=self.INFRASTRUCTURE_CONFIG["mongodb_uri"],
+            redis_url=self.INFRASTRUCTURE_CONFIG["redis_url"],
+            postgres_dsn=self.INFRASTRUCTURE_CONFIG["postgres_dsn"]
         )
     
     @property
     def whatsapp_config(self) -> WhatsAppConfig:
         """Get WhatsApp configuration"""
         return WhatsAppConfig(
-            base_url=self.KAAYAAN_CONFIG["whatsapp_base_url"],
-            session=self.KAAYAAN_CONFIG["whatsapp_session"]
+            base_url=self.INFRASTRUCTURE_CONFIG["whatsapp_base_url"],
+            session=self.INFRASTRUCTURE_CONFIG["whatsapp_session"]
         )
 
 # Convenience functions for quick setup

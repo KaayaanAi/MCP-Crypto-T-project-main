@@ -636,12 +636,12 @@ validate_redis_auth() {
         python3 -c "
 import os, sys
 try:
-    import aioredis
+    import redis.asyncio as redis
     import asyncio
     async def test():
-        redis = aioredis.from_url(os.getenv('REDIS_URL'), socket_timeout=5)
-        await redis.ping()
-        await redis.close()
+        redis_client = redis.from_url(os.getenv('REDIS_URL'), socket_timeout=5)
+        await redis_client.ping()
+        await redis_client.close()
         return True
     result = asyncio.run(test())
     sys.exit(0)
@@ -773,7 +773,7 @@ setup_python_environment() {
         ["asyncio"]="builtin"
         ["aiohttp"]="3.8.0"
         ["motor"]="2.5.0"
-        ["aioredis"]="2.0.0"
+        ["redis"]="4.0.0"
         ["mcp"]="0.1.0"
         ["pydantic"]="1.10.0"
         ["uvloop"]="optional"
@@ -931,10 +931,10 @@ class HealthChecker:
         # Redis check
         if redis_url := os.getenv('REDIS_URL'):
             try:
-                import aioredis
-                redis = aioredis.from_url(redis_url, socket_timeout=5)
-                await redis.ping()
-                await redis.close()
+                import redis.asyncio as redis
+                redis_client = redis.from_url(redis_url, socket_timeout=5)
+                await redis_client.ping()
+                await redis_client.close()
                 results['redis'] = {'status': 'healthy'}
             except Exception as e:
                 results['redis'] = {'status': 'unhealthy', 'error': str(e)}

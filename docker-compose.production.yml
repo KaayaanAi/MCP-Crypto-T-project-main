@@ -1,20 +1,37 @@
+
 version: '3.8'
 
 services:
   mcp-crypto-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.2025
+      args:
+        - VERSION=2.0.0
+        - BUILD_DATE=${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        - VCS_REF=${VCS_REF:-$(git rev-parse --short HEAD)}
+    image: mcp-crypto-trading:2.0.0
     container_name: mcp-crypto-trading
     restart: unless-stopped
+    labels:
+      - "org.opencontainers.image.title=MCP Crypto Trading Server"
+      - "org.opencontainers.image.description=Production-Ready MCP Crypto Trading Analysis Server"
+      - "org.opencontainers.image.version=2.0.0"
+      - "org.opencontainers.image.vendor=Kaayaan AI"
+      - "org.opencontainers.image.licenses=MIT"
+      - "org.opencontainers.image.source=https://github.com/kaayaanai/mcp-crypto-trading-project"
+      - "org.opencontainers.image.documentation=https://github.com/kaayaanai/mcp-crypto-trading-project/blob/main/README.md"
+      - "com.kaayaanai.service=mcp-crypto-server"
+      - "com.kaayaanai.environment=production"
+      - "com.kaayaanai.version=2.0.0"
     environment:
       - ENVIRONMENT=production
       - LOG_LEVEL=INFO
-      - MONGODB_URI=mongodb://username:password@mongodb:27017/
-      - REDIS_URL=redis://:password@redis:6379
-      - POSTGRES_DSN=postgresql://user:password@postgresql:5432/database
-      - WHATSAPP_API=https://your-whatsapp-api.com
-      - WHATSAPP_SESSION=your_session_id
+      - MONGODB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/crypto_trading
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - POSTGRES_DSN=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/crypto_trading
+      - WHATSAPP_API=${WHATSAPP_API}
+      - WHATSAPP_SESSION=${WHATSAPP_SESSION}
       - ENABLE_METRICS=true
       - METRICS_PORT=8080
       - MAX_CONCURRENT_REQUESTS=200
@@ -33,7 +50,7 @@ services:
       - redis
       - postgresql
     healthcheck:
-      test: ["CMD", "python", "-c", "import asyncio; import aiohttp; asyncio.run(aiohttp.ClientSession().get('http://localhost:8080/health').close())"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -57,8 +74,8 @@ services:
     container_name: mcp-mongodb
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: username
-      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: crypto_trading
     ports:
       - "27017:27017"
@@ -78,7 +95,7 @@ services:
     image: redis:7.2-alpine
     container_name: mcp-redis
     restart: unless-stopped
-    command: redis-server --requirepass "password" --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: redis-server --requirepass "${REDIS_PASSWORD}" --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     volumes:
@@ -86,7 +103,7 @@ services:
     networks:
       - kaayaan-network
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "password", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -96,9 +113,9 @@ services:
     container_name: mcp-postgresql
     restart: unless-stopped
     environment:
-      POSTGRES_DB: n8n_postgres_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crypto_trading
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -107,7 +124,7 @@ services:
     networks:
       - kaayaan-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d database"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d crypto_trading"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -136,7 +153,7 @@ services:
     container_name: mcp-grafana
     restart: unless-stopped
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin_password
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
     ports:
       - "3000:3000"

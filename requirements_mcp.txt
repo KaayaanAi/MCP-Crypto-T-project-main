@@ -1,11 +1,11 @@
 # MCP Crypto Trading Analysis - Production Requirements 2025+
 # Updated dependencies for 2025+ compatibility with security fixes
-# Last Updated: 2025-08-31
+# Last Updated: 2025-09-21 - Security and dependency fixes applied
 
 # ======================================================================
 # CORE MCP & SERVER DEPENDENCIES (2025+ Updates)
 # ======================================================================
-mcp==2.1.0                           # Model Context Protocol - Latest with OAuth support
+mcp==1.14.1                          # Model Context Protocol - Latest stable release
 pydantic==2.8.2                      # Pydantic v2 with 10x performance improvements
 fastapi==0.112.0                     # Latest FastAPI with OpenAPI 3.1 support
 uvicorn[standard]==0.30.0            # Latest ASGI server with HTTP/2 support
@@ -15,7 +15,7 @@ starlette==0.37.2                    # Updated ASGI framework
 # ASYNC & EVENT LOOP OPTIMIZATION (2025+ Updates)
 # ======================================================================
 asyncio-mqtt==0.16.2                 # Updated MQTT async client
-uvloop==0.20.0                       # Latest high-performance event loop
+uvloop==0.20.0; sys_platform != "win32"  # High-performance event loop (Unix only)
 aiofiles==24.1.0                     # Updated async file operations
 aiodns==3.2.0                        # Updated async DNS resolver
 
@@ -45,7 +45,7 @@ pymongo[srv]==4.8.0                  # MongoDB sync driver with SRV support
 aioredis==2.0.1                      # Redis async client (stable)
 redis==5.0.8                         # Updated Redis sync client
 asyncpg==0.29.0                      # PostgreSQL async driver (stable)
-psycopg==3.2.1                       # Modern PostgreSQL driver (psycopg3)
+psycopg[binary]==3.2.1               # Modern PostgreSQL driver (psycopg3) with binary wheel
 
 # ======================================================================
 # CONFIGURATION & ENVIRONMENT (2025+ Updates)
@@ -68,7 +68,7 @@ opentelemetry-sdk==1.26.0            # Latest OpenTelemetry SDK
 # SECURITY & AUTHENTICATION (2025+ Critical Updates)
 # ======================================================================
 cryptography==43.0.0                 # Latest cryptographic utilities
-python-jose[cryptography]==3.3.1     # SECURITY FIX: CVE-2024-33663 patched
+python-jose[cryptography]==3.3.0     # Fixed version with security patches
 passlib[bcrypt]==1.7.4               # Password hashing (stable)
 python-multipart==0.0.9              # Updated form data parsing
 bcrypt==4.2.0                        # Latest password hashing algorithm
@@ -152,13 +152,13 @@ celery==5.4.0                        # Updated distributed task queue
 # ======================================================================
 # NEW 2025+ ADDITIONS FOR ENHANCED FUNCTIONALITY
 # ======================================================================
-uv==0.2.26                           # Ultra-fast Python package installer
+# uv==0.2.26                           # Ultra-fast Python package installer (commented - causes conflicts)
 polars==1.4.1                        # Fast DataFrame library (pandas alternative)
 httpcore==1.0.5                      # Core HTTP functionality
 anyio==4.4.0                         # High-level async concurrency
-trio==0.26.0                         # Async I/O library
+# trio==0.26.0                         # Async I/O library (commented - potential conflicts with asyncio)
 sniffio==1.3.1                       # Detect async library
-contextlib2==21.6.0                  # Backported context utilities
+# contextlib2==21.6.0                  # Backported context utilities (not needed in Python 3.13+)
 typing-extensions==4.12.2            # Extended typing support
 
 # ======================================================================

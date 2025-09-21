@@ -592,7 +592,7 @@ class DatabaseTester:
         }
         
         try:
-            import aioredis
+            import redis.asyncio as redis
             
             url = os.getenv('REDIS_URL')
             if not url:
@@ -600,7 +600,7 @@ class DatabaseTester:
                 return result
             
             # Connection with timeout
-            redis = aioredis.from_url(
+            redis_client = redis.from_url(
                 url,
                 socket_timeout=5,
                 socket_connect_timeout=5,
@@ -609,18 +609,18 @@ class DatabaseTester:
             )
             
             # Ping test
-            await redis.ping()
+            await redis_client.ping()
             
             # Get server info
-            info = await redis.info()
+            info = await redis_client.info()
             
             # Test write/read operations
             test_key = f'connection_test_{time.time()}'
-            await redis.set(test_key, 'test_value', ex=60)
-            test_value = await redis.get(test_key)
-            await redis.delete(test_key)
+            await redis_client.set(test_key, 'test_value', ex=60)
+            test_value = await redis_client.get(test_key)
+            await redis_client.delete(test_key)
             
-            await redis.close()
+            await redis_client.close()
             
             result.update({
                 'status': 'healthy',

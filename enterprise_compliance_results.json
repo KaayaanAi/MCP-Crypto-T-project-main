@@ -1,0 +1,260 @@
+{
+  "timestamp": "2025-09-21T00:55:27.970609+00:00",
+  "compliance_score": 40.6,
+  "tests_passed": 13,
+  "tests_failed": 19,
+  "categories": {
+    "version_compliance": {
+      "tests": [
+        {
+          "name": "Python Version >= 3.13",
+          "passed": true,
+          "details": "Current: 3.13.7",
+          "requirement": "Python >= 3.13"
+        },
+        {
+          "name": "Dependencies Updated",
+          "passed": true,
+          "details": "Dependencies verified and updated",
+          "requirement": "All dependencies at latest stable versions"
+        }
+      ],
+      "passed": 2,
+      "failed": 0
+    },
+    "security_standards": {
+      "tests": [
+        {
+          "name": "Security Header: X-Content-Type-Options",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Security headers must be present"
+        },
+        {
+          "name": "Security Header: X-Frame-Options",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Security headers must be present"
+        },
+        {
+          "name": "Security Header: X-XSS-Protection",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Security headers must be present"
+        },
+        {
+          "name": "Security Header: Strict-Transport-Security",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Security headers must be present"
+        },
+        {
+          "name": "Request Size Limit",
+          "passed": false,
+          "details": "Status code: 500",
+          "requirement": "Requests > 1MB should be rejected"
+        }
+      ],
+      "passed": 0,
+      "failed": 5
+    },
+    "performance_sla": {
+      "tests": [
+        {
+          "name": "Health Check Response Time",
+          "passed": true,
+          "details": "1.7ms",
+          "requirement": "< 200ms"
+        },
+        {
+          "name": "Initialize Response Time",
+          "passed": true,
+          "details": "2.0ms",
+          "requirement": "< 500ms"
+        }
+      ],
+      "passed": 2,
+      "failed": 0
+    },
+    "mcp_protocol": {
+      "tests": [
+        {
+          "name": "Initialize Method",
+          "passed": false,
+          "details": "Status: 500, JSON-RPC: None",
+          "requirement": "Must return valid JSON-RPC 2.0 response"
+        },
+        {
+          "name": "Protocol Version",
+          "passed": false,
+          "details": "Returned: None",
+          "requirement": "Must support 2024-11-05"
+        },
+        {
+          "name": "Tools List Method",
+          "passed": false,
+          "details": "Found 0 tools",
+          "requirement": "Must return 7 crypto trading tools"
+        },
+        {
+          "name": "Error Handling",
+          "passed": false,
+          "details": "Error code: None",
+          "requirement": "Must return -32601 for unknown methods"
+        }
+      ],
+      "passed": 0,
+      "failed": 4
+    },
+    "enterprise_endpoints": {
+      "tests": [
+        {
+          "name": "Metrics: performance",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Enterprise metrics must be available"
+        },
+        {
+          "name": "Metrics: security",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Enterprise metrics must be available"
+        },
+        {
+          "name": "Metrics: sla_compliance",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Enterprise metrics must be available"
+        },
+        {
+          "name": "Health Check: status",
+          "passed": true,
+          "details": "Present: True",
+          "requirement": "Health check must include enterprise fields"
+        },
+        {
+          "name": "Health Check: timestamp",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Health check must include enterprise fields"
+        },
+        {
+          "name": "Health Check: server",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Health check must include enterprise fields"
+        },
+        {
+          "name": "Health Check: version",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Health check must include enterprise fields"
+        },
+        {
+          "name": "Health Check: mcp_initialized",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Health check must include enterprise fields"
+        }
+      ],
+      "passed": 1,
+      "failed": 7
+    },
+    "monitoring": {
+      "tests": [
+        {
+          "name": "Monitoring Header: X-Response-Time",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Monitoring headers must be present"
+        },
+        {
+          "name": "Monitoring Header: X-Request-ID",
+          "passed": false,
+          "details": "Present: False",
+          "requirement": "Monitoring headers must be present"
+        }
+      ],
+      "passed": 0,
+      "failed": 2
+    },
+    "error_handling": {
+      "tests": [
+        {
+          "name": "Malformed JSON Handling",
+          "passed": false,
+          "details": "Status code: 400",
+          "requirement": "Must reject malformed JSON"
+        }
+      ],
+      "passed": 0,
+      "failed": 1
+    },
+    "rate_limiting": {
+      "tests": [
+        {
+          "name": "Rate Limiting Functional",
+          "passed": true,
+          "details": "Response codes: [200, 200, 200, 200, 200]",
+          "requirement": "Rate limiting should allow reasonable requests"
+        }
+      ],
+      "passed": 1,
+      "failed": 0
+    },
+    "docker_standards": {
+      "tests": [
+        {
+          "name": "Dockerfile Feature: FROM python:3.13",
+          "passed": true,
+          "details": "Present: True",
+          "requirement": "2025+ Docker standards"
+        },
+        {
+          "name": "Dockerfile Feature: HEALTHCHECK",
+          "passed": true,
+          "details": "Present: True",
+          "requirement": "2025+ Docker standards"
+        },
+        {
+          "name": "Dockerfile Feature: USER mcpuser",
+          "passed": true,
+          "details": "Present: True",
+          "requirement": "2025+ Docker standards"
+        },
+        {
+          "name": "Dockerfile Feature: VOLUME",
+          "passed": true,
+          "details": "Present: True",
+          "requirement": "2025+ Docker standards"
+        }
+      ],
+      "passed": 4,
+      "failed": 0
+    },
+    "documentation": {
+      "tests": [
+        {
+          "name": "Documentation: README.md",
+          "passed": true,
+          "details": "Length: 11678 chars",
+          "requirement": "Complete documentation required"
+        },
+        {
+          "name": "Documentation: MCP_COMPLIANCE_REPORT.md",
+          "passed": true,
+          "details": "Length: 6425 chars",
+          "requirement": "Complete documentation required"
+        },
+        {
+          "name": "Documentation: QUICK_START_VALIDATED.md",
+          "passed": true,
+          "details": "Length: 2078 chars",
+          "requirement": "Complete documentation required"
+        }
+      ],
+      "passed": 3,
+      "failed": 0
+    }
+  }
+}

@@ -401,7 +401,10 @@ class MCP_ToolTester:
                     response_text = result[0].text
                     data = json.loads(response_text)
                 else:
-                    alert_result = await self.infrastructure.manage_alerts(case["action"], **case)
+                    # Extract action and remove from case to avoid duplicate parameter
+                    action = case.pop("action")
+                    alert_result = await self.infrastructure.manage_alerts(action, **case)
+                    case["action"] = action  # Restore for reporting
                     data = {"alert_result": alert_result}
                 
                 execution_time = time.time() - start_time

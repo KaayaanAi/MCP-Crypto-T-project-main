@@ -16,26 +16,15 @@ import os
 import traceback
 import time
 import uuid
-import hashlib
-from typing import Any, Dict, List, Optional, Tuple, Union
-from datetime import datetime, timezone, timedelta
+from typing import Any, Dict, List, Optional
+from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
-from enum import Enum
-import urllib.parse
-import http.client
-import ssl
-from contextlib import asynccontextmanager
 
-# MCP imports - Core MCP 2.1.0+ functionality
+# MCP imports - Core MCP 1.14.1+ functionality
 try:
     from mcp.server.models import InitializationOptions
     from mcp.server import NotificationOptions, Server
-    from mcp.types import (
-        Resource, Tool, TextContent, ImageContent, EmbeddedResource,
-        CallToolRequest, CallToolResult, ListToolsRequest, ListToolsResult,
-        Progress, LoggingLevel
-    )
-    import mcp.types as types
+    from mcp.types import Tool, TextContent
     from mcp.server.stdio import stdio_server
 except ImportError as e:
     print(f"CRITICAL: MCP library not available - {e}")
@@ -884,7 +873,7 @@ class MCPCryptoServer:
             symbol = arguments.get("symbol", "").strip().upper()
             if not symbol:
                 raise ValueError("Symbol is required")
-            if len(symbol) > 20 or not symbol.replace("USDT", "").replace("USD", "").replace("BTC", "").replace("ETH", "").isalpha():
+            if len(symbol) > 20 or not symbol.isalnum():
                 raise ValueError("Invalid symbol format")
             validated_args["symbol"] = symbol
             
@@ -1734,6 +1723,261 @@ class MCPCryptoServer:
         
         return strength
 
+    async def get_tool_schemas(self) -> List[Dict[str, Any]]:
+        """Get tool schemas for HTTP endpoint"""
+        # This mirrors the tools defined in handle_list_tools
+        return [
+            {
+                "name": "analyze_crypto",
+                "description": "Advanced cryptocurrency technical analysis using institutional indicators (Order Blocks, Fair Value Gaps, Break of Structure). Provides comprehensive market analysis with trend detection, volatility assessment, and intelligent scoring.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "symbol": {
+                            "type": "string",
+                            "description": "Trading pair symbol (e.g., BTCUSDT, ETHUSDT)",
+                            "pattern": "^[A-Z0-9]{3,20}$"
+                        },
+                        "timeframe": {
+                            "type": "string",
+                            "default": "1h",
+                            "description": "Analysis timeframe",
+                            "enum": ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M"]
+                        },
+                        "comparison_symbol": {
+                            "type": "string",
+                            "description": "Optional symbol for comparative analysis and correlation"
+                        },
+                        "save_analysis": {
+                            "type": "boolean",
+                            "default": True,
+                            "description": "Save analysis results to database for historical tracking"
+                        }
+                    },
+                    "required": ["symbol"]
+                }
+            },
+            {
+                "name": "monitor_portfolio",
+                "description": "Comprehensive portfolio monitoring with real-time P&L tracking, risk assessment, correlation analysis, and performance metrics. Provides position-level insights and portfolio-wide recommendations.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "portfolio_id": {
+                            "type": "string",
+                            "description": "Unique portfolio identifier"
+                        },
+                        "symbols": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "List of trading symbols in portfolio",
+                            "maxItems": 50
+                        },
+                        "risk_level": {
+                            "type": "string",
+                            "enum": ["conservative", "moderate", "aggressive"],
+                            "default": "moderate",
+                            "description": "Risk tolerance level for position sizing and alerts"
+                        }
+                    },
+                    "required": ["portfolio_id", "symbols"]
+                }
+            },
+            {
+                "name": "detect_opportunities",
+                "description": "AI-powered detection of high-probability trading opportunities using institutional flow analysis, pattern recognition, and market microstructure. Focuses on breakouts, reversals, and smart money moves.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "market_cap_range": {
+                            "type": "string",
+                            "enum": ["large", "mid", "small", "all"],
+                            "default": "all",
+                            "description": "Market capitalization range to scan (large: >$10B, mid: $1-10B, small: <$1B)"
+                        },
+                        "confidence_threshold": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100,
+                            "default": 70,
+                            "description": "Minimum confidence score for opportunities (0-100)"
+                        },
+                        "max_results": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "description": "Maximum number of opportunities to return"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "risk_assessment",
+                "description": "Advanced position sizing and risk management using Kelly Criterion, Value at Risk (VaR), and volatility-adjusted sizing. Calculates optimal position sizes based on portfolio value and risk tolerance.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "symbol": {
+                            "type": "string",
+                            "description": "Trading symbol for risk assessment"
+                        },
+                        "portfolio_value": {
+                            "type": "number",
+                            "description": "Total portfolio value in USD",
+                            "minimum": 100
+                        },
+                        "risk_percentage": {
+                            "type": "number",
+                            "default": 2.0,
+                            "minimum": 0.1,
+                            "maximum": 10.0,
+                            "description": "Risk percentage per trade (0.1-10%)"
+                        },
+                        "entry_price": {
+                            "type": "number",
+                            "description": "Planned entry price",
+                            "minimum": 0.000001
+                        },
+                        "stop_loss": {
+                            "type": "number",
+                            "description": "Stop loss price",
+                            "minimum": 0.000001
+                        }
+                    },
+                    "required": ["symbol", "portfolio_value", "entry_price", "stop_loss"]
+                }
+            },
+            {
+                "name": "market_scanner",
+                "description": "Real-time market scanning for specific patterns including breakouts, reversals, institutional accumulation, and volume surges. Monitors hundreds of pairs simultaneously for trading setups.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "scan_type": {
+                            "type": "string",
+                            "enum": ["breakouts", "reversals", "institutional", "volume_surge", "all"],
+                            "default": "all",
+                            "description": "Type of patterns to scan for"
+                        },
+                        "timeframe": {
+                            "type": "string",
+                            "default": "1h",
+                            "enum": ["1m", "5m", "15m", "1h", "4h", "1d"],
+                            "description": "Timeframe for pattern detection"
+                        },
+                        "min_volume_usd": {
+                            "type": "number",
+                            "default": 1000000,
+                            "minimum": 10000,
+                            "description": "Minimum 24h volume in USD to filter low-liquidity pairs"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "alert_manager",
+                "description": "Comprehensive alert system with WhatsApp integration. Supports price alerts, technical indicator alerts, volume alerts, and news sentiment alerts. Includes smart cooldown and deduplication.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "string",
+                            "enum": ["create", "update", "delete", "list"],
+                            "description": "Alert management action to perform"
+                        },
+                        "alert_type": {
+                            "type": "string",
+                            "enum": ["price", "technical", "volume", "news", "risk"],
+                            "description": "Type of alert to create"
+                        },
+                        "symbol": {
+                            "type": "string",
+                            "description": "Trading symbol for the alert"
+                        },
+                        "condition": {
+                            "type": "string",
+                            "description": "Alert condition (e.g., 'price > 50000', 'rsi < 30', 'volume > 1000000')"
+                        },
+                        "phone_number": {
+                            "type": "string",
+                            "description": "WhatsApp number for alert delivery (format: +1234567890)"
+                        }
+                    },
+                    "required": ["action"]
+                }
+            },
+            {
+                "name": "historical_backtest",
+                "description": "Advanced backtesting engine with comprehensive performance metrics including Sharpe ratio, maximum drawdown, win rate, and trade-by-trade analysis. Supports custom strategies and benchmark comparisons.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "symbol": {
+                            "type": "string",
+                            "description": "Trading symbol for backtesting"
+                        },
+                        "strategy": {
+                            "type": "string",
+                            "description": "Strategy description or configuration (JSON format supported)"
+                        },
+                        "start_date": {
+                            "type": "string",
+                            "description": "Backtest start date (YYYY-MM-DD)",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "end_date": {
+                            "type": "string",
+                            "description": "Backtest end date (YYYY-MM-DD)",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "initial_capital": {
+                            "type": "number",
+                            "default": 10000,
+                            "minimum": 100,
+                            "description": "Initial capital for backtesting"
+                        }
+                    },
+                    "required": ["symbol", "strategy", "start_date", "end_date"]
+                }
+            }
+        ]
+
+    async def execute_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute a tool and return results - for HTTP endpoint compatibility"""
+        if not self._initialized:
+            await self.initialize()
+
+        # Validate and execute the tool
+        validated_args = self._validate_input(tool_name, arguments)
+
+        # Create a mock request ID for HTTP calls
+        request_id = f"http_{int(time.time())}"
+
+        # Route to the appropriate handler
+        if tool_name == "analyze_crypto":
+            result = await self._handle_analyze_crypto(validated_args, request_id)
+        elif tool_name == "monitor_portfolio":
+            result = await self._handle_monitor_portfolio(validated_args, request_id)
+        elif tool_name == "detect_opportunities":
+            result = await self._handle_detect_opportunities(validated_args, request_id)
+        elif tool_name == "risk_assessment":
+            result = await self._handle_risk_assessment(validated_args, request_id)
+        elif tool_name == "market_scanner":
+            result = await self._handle_market_scanner(validated_args, request_id)
+        elif tool_name == "alert_manager":
+            result = await self._handle_alert_manager(validated_args, request_id)
+        elif tool_name == "historical_backtest":
+            result = await self._handle_historical_backtest(validated_args, request_id)
+        else:
+            raise ValueError(f"Unknown tool: {tool_name}")
+
+        # Extract the content from TextContent result
+        if result and len(result) > 0 and hasattr(result[0], 'text'):
+            return json.loads(result[0].text)
+        else:
+            return {"error": "No result returned from tool"}
+
 async def main():
     """Main entry point for the standalone MCP server"""
     server_instance = MCPCryptoServer()
@@ -1769,17 +2013,18 @@ async def main():
                 server_version=server_instance.server_version,
                 capabilities=server_instance.server.get_capabilities(
                     notification_options=NotificationOptions(
-                        progress_notifications=True,
-                        completion_notifications=True
+                        prompts_changed=True,
+                        resources_changed=True,
+                        tools_changed=True
                     ),
                     experimental_capabilities={
-                        "standalone_mode": True,
-                        "production_ready": True,
-                        "kaayaan_integration": True,
-                        "rate_limiting": True,
-                        "input_validation": True,
-                        "structured_logging": True,
-                        "health_monitoring": True
+                        "standalone_mode": {},
+                        "production_ready": {},
+                        "kaayaan_integration": {},
+                        "rate_limiting": {},
+                        "input_validation": {},
+                        "structured_logging": {},
+                        "health_monitoring": {}
                     }
                 )
             )

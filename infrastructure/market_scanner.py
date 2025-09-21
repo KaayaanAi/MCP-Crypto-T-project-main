@@ -12,7 +12,7 @@ from dataclasses import asdict
 
 from models.kaayaan_models import *
 from infrastructure.database_manager import DatabaseManager
-from crypto_analyzer import CryptoAnalyzer
+from src.core.crypto_analyzer import CryptoAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +26,9 @@ class MarketScanner:
     - Risk-adjusted opportunity scoring
     """
     
-    def __init__(self, analyzer: CryptoAnalyzer, db_manager: DatabaseManager):
-        self.analyzer = analyzer
+    def __init__(self, db_manager: DatabaseManager):
         self.db_manager = db_manager
+        self.analyzer = CryptoAnalyzer()  # Create analyzer instance
         
         # Scanning parameters
         self.scan_symbols = [

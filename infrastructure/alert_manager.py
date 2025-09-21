@@ -27,11 +27,12 @@ class AlertManager:
     - Alert history and analytics
     """
     
-    def __init__(self, whatsapp_base_url: str, whatsapp_session: str, 
-                 db_manager: DatabaseManager):
-        self.whatsapp_base_url = whatsapp_base_url.rstrip('/')
-        self.whatsapp_session = whatsapp_session
-        self.db_manager = db_manager
+    def __init__(self, database_manager: DatabaseManager, http_session: aiohttp.ClientSession,
+                 whatsapp_config: WhatsAppConfig):
+        self.db_manager = database_manager
+        self.http_session = http_session
+        self.whatsapp_base_url = whatsapp_config.base_url.rstrip('/')
+        self.whatsapp_session = whatsapp_config.session
         
         # Alert condition evaluators
         self.condition_evaluators = {

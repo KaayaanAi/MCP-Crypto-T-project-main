@@ -28,7 +28,7 @@ from mcp.server.stdio import stdio_server
 import aiohttp
 
 # Project imports
-from crypto_analyzer import CryptoAnalyzer
+from src.core.crypto_analyzer import CryptoAnalyzer
 from models.kaayaan_models import *
 from infrastructure.kaayaan_factory import KaayaanInfrastructureFactory
 
@@ -435,20 +435,24 @@ class MCPCryptoServer:
     async def _get_market_context(self) -> Dict[str, Any]:
         """Get overall market context from cache or fresh analysis"""
         try:
-            # Try to get from Redis cache first
-            cached_context = await self.redis_client.get("market_context")
-            if cached_context:
-                return json.loads(cached_context)
-            
+            # Try to get from Redis cache first if available
+            if self.infrastructure_factory and self.infrastructure_factory._redis_client:
+                redis_client = self.infrastructure_factory._redis_client
+                cached_context = await redis_client.get("market_context")
+                if cached_context:
+                    return json.loads(cached_context)
+
             # Generate fresh market context
             context = await self._generate_market_context()
-            
-            # Cache for 5 minutes
-            await self.redis_client.setex(
-                "market_context", 
-                300, 
-                json.dumps(context, default=str)
-            )
+
+            # Cache for 5 minutes if Redis available
+            if self.infrastructure_factory and self.infrastructure_factory._redis_client:
+                redis_client = self.infrastructure_factory._redis_client
+                await redis_client.setex(
+                    "market_context",
+                    300,
+                    json.dumps(context, default=str)
+                )
             
             return context
             
@@ -564,12 +568,8 @@ class MCPCryptoServer:
     async def cleanup(self):
         """Clean up resources on shutdown"""
         try:
-            if self.mongodb_client:
-                self.mongodb_client.close()
-            if self.redis_client:
-                await self.redis_client.close()
-            if self.postgres_pool:
-                await self.postgres_pool.close()
+            if self.infrastructure_factory:
+                await self.infrastructure_factory.cleanup()
             logger.info("Server cleanup completed")
         except Exception as e:
             logger.error(f"Cleanup error: {e}")

@@ -178,7 +178,7 @@ class ProductionConfig:
     def __init__(self):
         self.environment = os.getenv("ENVIRONMENT", "production")
         self.debug = os.getenv("DEBUG", "false").lower() == "true"
-        self.version = os.getenv("APP_VERSION", "1.0.0")
+        self.version = os.getenv("APP_VERSION", "2.0.0")
         
         # Load all configurations
         self.database = DatabaseConfig()

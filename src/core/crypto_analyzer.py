@@ -7,10 +7,18 @@ from typing import Dict, List, Optional, Tuple
 import os
 from dataclasses import asdict
 
-from binance_client import BinanceClient
-from coingecko_client import CoinGeckoClient
-from coinmarketcap_client import CoinMarketCapClient
-from technical_indicators import TechnicalIndicators
+import sys
+from pathlib import Path
+
+# Add paths to import project modules
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "src" / "clients"))
+sys.path.insert(0, str(project_root))
+
+from src.clients.binance_client import BinanceClient
+from src.clients.coingecko_client import CoinGeckoClient
+from src.clients.coinmarketcap_client import CoinMarketCapClient
+from .technical_indicators import TechnicalIndicators
 from legacy.response_models import *
 
 class CryptoAnalyzer:

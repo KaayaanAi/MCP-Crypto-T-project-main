@@ -13,8 +13,7 @@ from dataclasses import asdict
 
 from models.kaayaan_models import *
 from infrastructure.database_manager import DatabaseManager
-from infrastructure.risk_manager import RiskManager
-from crypto_analyzer import CryptoAnalyzer
+from src.core.crypto_analyzer import CryptoAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +28,10 @@ class PortfolioTracker:
     - Portfolio optimization recommendations
     """
     
-    def __init__(self, analyzer: CryptoAnalyzer, db_manager: DatabaseManager, 
-                 risk_manager: RiskManager):
-        self.analyzer = analyzer
+    def __init__(self, db_manager: DatabaseManager):
         self.db_manager = db_manager
-        self.risk_manager = risk_manager
+        self.analyzer = CryptoAnalyzer()  # Create analyzer instance
+        # Note: risk_manager will be injected later via method parameter or created as needed
         
         # Portfolio parameters
         self.max_position_weight = 25.0    # Max % per position
