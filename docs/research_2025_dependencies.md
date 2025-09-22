@@ -27,7 +27,7 @@ The MCP Crypto Trading project requires significant dependency updates and archi
 **MCP Protocol Migration (BREAKING)**
 ```toml
 # requirements_mcp.txt - Updated MCP dependencies
-mcp>=2.0.0                    # Latest spec 2025-06-18 support
+mcp>=2.1.0                    # Latest spec 2025-06-18 support
 pydantic>=2.8.0               # V2 with structured output support
 fastapi>=0.112.0              # Compatible with Pydantic V2
 ```
@@ -90,10 +90,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mcp-crypto-trading"
-version = "2.0.0"
+version = "2.1.0"
 requires-python = ">=3.12"
 dependencies = [
-    "mcp>=2.0.0",
+    "mcp>=2.1.0",
     "fastapi>=0.112.0",
     "pydantic>=2.8.0",
     # ... other dependencies

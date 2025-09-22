@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-09-21T00:55:27.970609+00:00",
-  "compliance_score": 40.6,
-  "tests_passed": 13,
-  "tests_failed": 19,
+  "timestamp": "2025-09-22T13:47:13.256558+00:00",
+  "compliance_score": 47.6,
+  "tests_passed": 10,
+  "tests_failed": 11,
   "categories": {
     "version_compliance": {
       "tests": [
@@ -25,166 +25,100 @@
     "security_standards": {
       "tests": [
         {
-          "name": "Security Header: X-Content-Type-Options",
+          "name": "Security Headers Test",
           "passed": false,
-          "details": "Present: False",
-          "requirement": "Security headers must be present"
-        },
-        {
-          "name": "Security Header: X-Frame-Options",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Security headers must be present"
-        },
-        {
-          "name": "Security Header: X-XSS-Protection",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Security headers must be present"
-        },
-        {
-          "name": "Security Header: Strict-Transport-Security",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Security headers must be present"
+          "details": "Request failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f3bb60>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "Server must be accessible for testing"
         },
         {
           "name": "Request Size Limit",
-          "passed": false,
-          "details": "Status code: 500",
-          "requirement": "Requests > 1MB should be rejected"
+          "passed": true,
+          "details": "Request rejected (likely size limit)",
+          "requirement": "Large requests should be rejected"
         }
       ],
-      "passed": 0,
-      "failed": 5
+      "passed": 1,
+      "failed": 1
     },
     "performance_sla": {
       "tests": [
         {
           "name": "Health Check Response Time",
-          "passed": true,
-          "details": "1.7ms",
+          "passed": false,
+          "details": "Request failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10a469e50>: Failed to establish a new connection: [Errno 61] Connection refused'))",
           "requirement": "< 200ms"
         },
         {
           "name": "Initialize Response Time",
-          "passed": true,
-          "details": "2.0ms",
+          "passed": false,
+          "details": "Request failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /mcp (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10a432780>: Failed to establish a new connection: [Errno 61] Connection refused'))",
           "requirement": "< 500ms"
         }
       ],
-      "passed": 2,
-      "failed": 0
+      "passed": 0,
+      "failed": 2
     },
     "mcp_protocol": {
       "tests": [
         {
           "name": "Initialize Method",
           "passed": false,
-          "details": "Status: 500, JSON-RPC: None",
-          "requirement": "Must return valid JSON-RPC 2.0 response"
-        },
-        {
-          "name": "Protocol Version",
-          "passed": false,
-          "details": "Returned: None",
-          "requirement": "Must support 2024-11-05"
+          "details": "Failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /mcp (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10a432ea0>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "Must handle initialize requests"
         },
         {
           "name": "Tools List Method",
           "passed": false,
-          "details": "Found 0 tools",
-          "requirement": "Must return 7 crypto trading tools"
+          "details": "Failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /mcp (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10a41ef90>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "Must handle tools/list requests"
         },
         {
           "name": "Error Handling",
           "passed": false,
-          "details": "Error code: None",
-          "requirement": "Must return -32601 for unknown methods"
+          "details": "Failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /mcp (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10a47d6a0>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "Must handle invalid methods properly"
         }
       ],
       "passed": 0,
-      "failed": 4
+      "failed": 3
     },
     "enterprise_endpoints": {
       "tests": [
         {
-          "name": "Metrics: performance",
+          "name": "Metrics Endpoint",
           "passed": false,
-          "details": "Present: False",
-          "requirement": "Enterprise metrics must be available"
+          "details": "Failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10a47de10>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "/metrics endpoint must be available"
         },
         {
-          "name": "Metrics: security",
+          "name": "Health Check",
           "passed": false,
-          "details": "Present: False",
-          "requirement": "Enterprise metrics must be available"
-        },
-        {
-          "name": "Metrics: sla_compliance",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Enterprise metrics must be available"
-        },
-        {
-          "name": "Health Check: status",
-          "passed": true,
-          "details": "Present: True",
-          "requirement": "Health check must include enterprise fields"
-        },
-        {
-          "name": "Health Check: timestamp",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Health check must include enterprise fields"
-        },
-        {
-          "name": "Health Check: server",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Health check must include enterprise fields"
-        },
-        {
-          "name": "Health Check: version",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Health check must include enterprise fields"
-        },
-        {
-          "name": "Health Check: mcp_initialized",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Health check must include enterprise fields"
-        }
-      ],
-      "passed": 1,
-      "failed": 7
-    },
-    "monitoring": {
-      "tests": [
-        {
-          "name": "Monitoring Header: X-Response-Time",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Monitoring headers must be present"
-        },
-        {
-          "name": "Monitoring Header: X-Request-ID",
-          "passed": false,
-          "details": "Present: False",
-          "requirement": "Monitoring headers must be present"
+          "details": "Failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f13df0>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "/health endpoint must be comprehensive"
         }
       ],
       "passed": 0,
       "failed": 2
+    },
+    "monitoring": {
+      "tests": [
+        {
+          "name": "Monitoring Headers",
+          "passed": false,
+          "details": "Failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f13130>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "Monitoring headers must be available"
+        }
+      ],
+      "passed": 0,
+      "failed": 1
     },
     "error_handling": {
       "tests": [
         {
           "name": "Malformed JSON Handling",
           "passed": false,
-          "details": "Status code: 400",
-          "requirement": "Must reject malformed JSON"
+          "details": "Failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /mcp (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10a47d370>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "Must handle malformed requests"
         }
       ],
       "passed": 0,
@@ -193,14 +127,14 @@
     "rate_limiting": {
       "tests": [
         {
-          "name": "Rate Limiting Functional",
-          "passed": true,
-          "details": "Response codes: [200, 200, 200, 200, 200]",
-          "requirement": "Rate limiting should allow reasonable requests"
+          "name": "Rate Limiting",
+          "passed": false,
+          "details": "Failed: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10a47d150>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+          "requirement": "Rate limiting must be functional"
         }
       ],
-      "passed": 1,
-      "failed": 0
+      "passed": 0,
+      "failed": 1
     },
     "docker_standards": {
       "tests": [
@@ -237,7 +171,7 @@
         {
           "name": "Documentation: README.md",
           "passed": true,
-          "details": "Length: 11678 chars",
+          "details": "Length: 15112 chars",
           "requirement": "Complete documentation required"
         },
         {

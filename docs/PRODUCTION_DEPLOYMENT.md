@@ -6,7 +6,7 @@
 
 ## 🎯 Project Overview
 
-**MCP Crypto Trading Server v2.0.0** - Advanced cryptocurrency trading analysis platform with institutional-grade indicators, real-time portfolio monitoring, and seamless n8n workflow integration.
+**MCP Crypto Trading Server v2.1.0** - Advanced cryptocurrency trading analysis platform with institutional-grade indicators, real-time portfolio monitoring, and seamless n8n workflow integration.
 
 ### Auto-Detected Project Configuration
 - **Project Name**: `crypto-trading` (auto-detected from folder)
@@ -333,7 +333,7 @@ docker exec kaayaan-crypto-trading redis-cli -h redis FLUSHDB
 - [ ] Test infrastructure connectivity: `./start_mcp_server.sh --no-deps python`
 
 ### Deployment
-- [ ] Build Docker image: `docker build -f Dockerfile.production -t kaayaan/mcp-crypto-trading:2.0.0 .`
+- [ ] Build Docker image: `docker build -f Dockerfile.production -t kaayaan/mcp-crypto-trading:2.1.0 .`
 - [ ] Start container: `docker-compose -f docker-compose.kaayaan.yml up -d`
 - [ ] Verify container health: `docker ps | grep crypto-trading`
 - [ ] Test MCP tools: Use n8n MCP Client node with simple analysis

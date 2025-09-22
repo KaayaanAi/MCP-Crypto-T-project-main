@@ -1,7 +1,7 @@
 # 🏆 MCP Crypto Trading Server - Production Transformation Complete
 
 **Status: ✅ PRODUCTION READY**  
-**Version: 2.0.0**  
+**Version: 2.1.0**  
 **Container: kaayaan-crypto-trading**  
 **Protocol: MCP 2.1.0+ stdio**
 
@@ -32,7 +32,7 @@ Your **MCP-Crypto-T-project** has been successfully transformed into a **product
 - **`start_mcp_server.sh`** - Intelligent startup script with validation and auto-detection
 
 ### ✅ n8n Workflow Integration
-- **`N8N_INTEGRATION_GUIDE.md`** - Complete workflow setup guide
+- **`N8N_INTEGRATION.md`** - Complete workflow setup guide
 - **`n8n_mcp_config.json`** - Ready-to-copy MCP Client node configuration
 - **Example Workflows**: Multi-timeframe analysis, portfolio monitoring, opportunity hunting
 

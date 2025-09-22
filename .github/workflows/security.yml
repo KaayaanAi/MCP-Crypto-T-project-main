@@ -142,7 +142,7 @@ jobs:
           push: false
           tags: mcp-crypto-trading:security-scan
           build-args: |
-            VERSION=2.0.0
+            VERSION=2.1.0
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
             VCS_REF=${{ github.sha }}
 
@@ -226,7 +226,7 @@ jobs:
           echo "## Security Scan Summary" > security-summary.md
           echo "📅 Scan Date: $(date -u)" >> security-summary.md
           echo "🔍 Python Version: ${{ env.PYTHON_VERSION }}" >> security-summary.md
-          echo "🐳 Docker Image: mcp-crypto-trading:2.0.0" >> security-summary.md
+          echo "🐳 Docker Image: mcp-crypto-trading:2.1.0" >> security-summary.md
           echo "" >> security-summary.md
           echo "### ✅ Completed Scans" >> security-summary.md
           echo "- Dependency vulnerability scanning" >> security-summary.md
@@ -271,4 +271,4 @@ jobs:
         if: success()
         run: |
           echo "✅ All security scans passed successfully"
-          echo "🔒 MCP Crypto Trading Server v2.0.0 is secure and compliant"
+          echo "🔒 MCP Crypto Trading Server v2.1.0 is secure and compliant"

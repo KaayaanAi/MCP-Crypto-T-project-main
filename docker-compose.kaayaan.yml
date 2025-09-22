@@ -11,7 +11,7 @@ services:
       dockerfile: Dockerfile.production
       target: final
     container_name: kaayaan-crypto-trading
-    image: kaayaan/mcp-crypto-trading:2.0.0
+    image: kaayaan/mcp-crypto-trading:2.1.0
     
     restart: unless-stopped
     
@@ -38,7 +38,7 @@ services:
       
       # Server Configuration
       - MCP_SERVER_NAME=crypto-trading
-      - MCP_VERSION=2.0.0
+      - MCP_VERSION=2.1.0
       - ENVIRONMENT=production
       - TIMEZONE=Asia/Kuwait
       - PYTHONUNBUFFERED=1
@@ -90,7 +90,7 @@ services:
     # Labels for container management
     labels:
       - "com.kaayaan.service=crypto-trading"
-      - "com.kaayaan.version=2.0.0"
+      - "com.kaayaan.version=2.1.0"
       - "com.kaayaan.environment=production"
       - "com.kaayaan.protocol=mcp-stdio"
 

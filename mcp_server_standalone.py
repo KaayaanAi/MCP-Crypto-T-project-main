@@ -1268,7 +1268,7 @@ class MCPCryptoServer:
             ]
         
         @self.server.call_tool()
-        async def handle_call_tool(name: str, arguments: Dict[str, Any] | None) -> List[TextContent]:
+        async def handle_call_tool(name: str, arguments: Optional[Dict[str, Any]]) -> List[TextContent]:
             """Handle tool execution with comprehensive error handling and monitoring"""
             request_id = str(uuid.uuid4())[:8]
             start_time = time.time()

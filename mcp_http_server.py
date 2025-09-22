@@ -304,16 +304,16 @@ async def main():
     """Run the HTTP server"""
 
     print("🚀 Starting MCP Crypto Trading HTTP Server")
-    print("📡 HTTP endpoint: http://localhost:8000/mcp")
-    print("💊 Health check: http://localhost:8000/health")
-    print("📚 Documentation: http://localhost:8000/docs")
+    print("📡 HTTP endpoint: http://localhost:4008/mcp")
+    print("💊 Health check: http://localhost:4008/health")
+    print("📚 Documentation: http://localhost:4008/docs")
     print()
 
     # Run server
     config = uvicorn.Config(
         app,
         host="0.0.0.0",
-        port=8000,
+        port=4008,
         log_level="info",
         access_log=True
     )

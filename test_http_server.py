@@ -37,7 +37,7 @@ async def test_endpoint(session: aiohttp.ClientSession, url: str, method: str = 
 
 async def test_mcp_server():
     """Test the MCP HTTP server comprehensively"""
-    base_url = "http://localhost:8000"
+    base_url = "http://localhost:4008"
 
     print("🧪 Starting MCP HTTP Server Tests")
     print("=" * 50)

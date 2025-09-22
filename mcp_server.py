@@ -3,7 +3,7 @@
 Production-Ready MCP Crypto Trading Analysis Server
 Optimized for 2025+ deployment with Kaayaan infrastructure integration
 Author: Claude Code Assistant
-Version: 2.0.0
+Version: 2.1.0
 Protocol: MCP 2.1.0+ with stdio transport only
 """
 
@@ -93,7 +93,7 @@ class MCPCryptoServer:
 
         # Initialize MCP server
         self.server = Server(f"mcp-{self.server_name}")
-        self.server_version = "2.0.0"
+        self.server_version = "2.1.0"
 
         # Core components
         self.analyzer = None
@@ -230,6 +230,73 @@ class MCPCryptoServer:
         for key in keys_to_remove:
             del self.rate_limits[key]
 
+    def _sanitize_string(self, value: str, field_name: str) -> str:
+        """Sanitize string input by removing dangerous patterns"""
+        if not isinstance(value, str):
+            return value
+
+        # Define dangerous patterns to remove
+        dangerous_patterns = [
+            # XSS patterns
+            r'<script[^>]*>.*?</script>',
+            r'<.*?on\w+\s*=.*?>',
+            r'javascript:',
+            r'vbscript:',
+            r'<iframe',
+            r'<object',
+            r'<embed',
+
+            # SQL injection patterns
+            r"';\s*DROP\s+TABLE",
+            r"';\s*DELETE\s+FROM",
+            r"';\s*INSERT\s+INTO",
+            r"';\s*UPDATE\s+",
+            r"'\s+OR\s+'",
+            r"'\s+AND\s+'",
+            r"--\s*$",
+            r"/\*.*?\*/",
+
+            # Path traversal patterns
+            r"\.\./",
+            r"\.\.\\",
+            r"/etc/",
+            r"\\windows\\",
+            r"\.\.[\\/]",
+
+            # Code injection patterns
+            r"\$\{jndi:",
+            r"exec\s*\(",
+            r"eval\s*\(",
+            r"system\s*\(",
+            r"shell_exec\s*\(",
+            r"passthru\s*\(",
+            r"__import__",
+
+            # Command injection
+            r"[;&|`$()]",
+        ]
+
+        import re
+        sanitized = value
+
+        # Remove dangerous patterns
+        for pattern in dangerous_patterns:
+            sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+
+        # Additional sanitization for specific fields
+        if field_name in ['symbol', 'condition']:
+            # Only allow alphanumeric, hyphens, underscores, dots, spaces for symbols/conditions
+            sanitized = re.sub(r'[^a-zA-Z0-9\-_\.\s]', '', sanitized)
+
+        # Remove excessive whitespace
+        sanitized = re.sub(r'\s+', ' ', sanitized).strip()
+
+        # Log sanitization if changes were made
+        if sanitized != value:
+            logger.warning(f"Input sanitized for field '{field_name}': removed dangerous content")
+
+        return sanitized
+
     def _validate_input(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """Validate and sanitize input arguments"""
         if not isinstance(arguments, dict):
@@ -299,6 +366,10 @@ class MCPCryptoServer:
                 raise ValueError(f"Missing required parameter: {key}")
 
             if value is not None:
+                # Sanitize string inputs first
+                if isinstance(value, str):
+                    value = self._sanitize_string(value, key)
+
                 # Type validation
                 expected_type = rule.get("type")
                 if expected_type and not isinstance(value, expected_type):
@@ -340,9 +411,12 @@ class MCPCryptoServer:
                 # Set defaults for non-required parameters
                 validated_args[key] = value
 
-        # Add any parameters not in validation rules (pass-through)
+        # Add any parameters not in validation rules (pass-through with sanitization)
         for key, value in arguments.items():
             if key not in rules:
+                # Sanitize string inputs even for pass-through parameters
+                if isinstance(value, str):
+                    value = self._sanitize_string(value, key)
                 validated_args[key] = value
 
         return validated_args
@@ -585,7 +659,7 @@ class MCPCryptoServer:
 
         @self.server.call_tool()
         async def handle_call_tool(
-            name: str, arguments: Dict[str, Any] | None
+            name: str, arguments: Optional[Dict[str, Any]]
         ) -> List[TextContent]:
             """Handle tool execution requests with comprehensive error handling"""
             request_id = str(uuid.uuid4())[:8]

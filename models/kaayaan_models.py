@@ -13,7 +13,11 @@ import uuid
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'legacy'))
-from response_models import *
+from response_models import (
+    MarketAnalysis, VolatilityIndicators, OrderBlock, FairValueGap,
+    BreakOfStructure, ChangeOfCharacter, LiquidityZone, AnchoredVWAP,
+    RSIDivergence, Recommendation, ComparativeAnalysis, CryptoAnalysisResponse
+)
 
 class AlertType(str, Enum):
     PRICE = "price"
@@ -74,7 +78,7 @@ class EnhancedAnalysisResult(BaseModel):
     position_sizing_suggestion: Optional[Dict[str, Any]] = None
     
     @validator('intelligent_score')
-    def validate_score(cls, v):
+    def validate_score(cls, v: float) -> float:
         return max(0, min(100, v))
 
 class PortfolioPosition(BaseModel):
@@ -122,7 +126,7 @@ class TradingOpportunity(BaseModel):
     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     @validator('risk_reward_ratio')
-    def validate_risk_reward(cls, v):
+    def validate_risk_reward(cls, v: float) -> float:
         return max(0.1, v)  # Minimum 1:10 risk-reward
 
 class RiskAssessment(BaseModel):

@@ -6,11 +6,9 @@ Production-ready MCP module for Kaayaan infrastructure integration
 
 import asyncio
 import json
-import sys
 import logging
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Union
 from datetime import datetime, timezone, timedelta
-import traceback
 import os
 from dataclasses import asdict
 
@@ -208,7 +206,7 @@ class MCPCryptoServer:
             ]
         
         @self.server.call_tool()
-        async def handle_call_tool(name: str, arguments: Dict[str, Any] | None) -> List[TextContent]:
+        async def handle_call_tool(name: str, arguments: Optional[Dict[str, Any]]) -> List[TextContent]:
             """Handle tool execution requests"""
             try:
                 if name == "analyze_crypto":
@@ -565,14 +563,6 @@ class MCPCryptoServer:
         except Exception:
             return "neutral"
     
-    async def cleanup(self):
-        """Clean up resources on shutdown"""
-        try:
-            if self.infrastructure_factory:
-                await self.infrastructure_factory.cleanup()
-            logger.info("Server cleanup completed")
-        except Exception as e:
-            logger.error(f"Cleanup error: {e}")
 
 async def main():
     """Enhanced main entry point for MCP 2.1.0+ server with modern patterns"""

@@ -192,7 +192,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=2.0.0,enable={{is_default_branch}}
+            type=raw,value=2.1.0,enable={{is_default_branch}}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build Docker image
@@ -204,7 +204,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VERSION=2.0.0
+            VERSION=2.1.0
             BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             VCS_REF=${{ github.sha }}
           cache-from: type=gha
@@ -213,7 +213,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.IMAGE_NAME }}:2.0.0
+          image-ref: ${{ env.IMAGE_NAME }}:2.1.0
           format: 'sarif'
           output: 'trivy-results.sarif'
 
@@ -287,7 +287,7 @@ jobs:
           echo "## MCP Crypto Trading Server v${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "### 🚀 Features" >> $GITHUB_OUTPUT
-          echo "- Production-ready v2.0.0 release" >> $GITHUB_OUTPUT
+          echo "- Production-ready v2.1.0 release" >> $GITHUB_OUTPUT
           echo "- Enterprise-grade security hardening" >> $GITHUB_OUTPUT
           echo "- Python 3.13+ compatibility" >> $GITHUB_OUTPUT
           echo "- Complete CI/CD automation" >> $GITHUB_OUTPUT

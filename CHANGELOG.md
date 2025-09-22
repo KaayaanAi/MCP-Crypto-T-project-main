@@ -5,6 +5,34 @@ All notable changes to the MCP Crypto Trading Analysis Server are documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-09-22 - Protocol Enhancement Release
+
+### 🔧 **PROTOCOL FIXES & ENHANCEMENTS**
+
+**Overall Status:** Enhanced MCP protocol compliance | Cleaner codebase | Improved stability
+
+### Added
+- **Enhanced Node.js integration** with hybrid architecture support
+- **Improved MCP protocol handling** with better error management
+- **Streamlined deployment process** with unified Docker configuration
+- **Better documentation consistency** across all project files
+
+### Fixed
+- **MCP protocol edge cases** - Enhanced error handling and response formatting
+- **Runtime stability improvements** - Fixed all remaining edge case bugs
+- **Documentation consistency** - Updated all version references and file paths
+- **Dependency management** - Consolidated requirements and removed outdated files
+
+### Removed
+- **Obsolete files cleanup** - Removed outdated documentation and test files
+- **Deprecated Dockerfile variants** - Consolidated to single production Dockerfile
+- **Unused dependency references** - Cleaned up package.json and requirements
+
+### Changed
+- **Version consistency** - All files now reference v2.1.0
+- **Docker configuration** - Simplified to single production-ready setup
+- **Documentation structure** - Improved clarity and removed redundancy
+
 ## [2.0.0] - 2025-09-21 - Production Release
 
 ### 🚀 **MAJOR RELEASE - PRODUCTION READY**
@@ -210,8 +238,8 @@ docker-compose -f docker-compose.production.yml up -d
 ### v2.0.0 Documentation
 - **README.md** - Complete production-ready overview
 - **CHANGELOG.md** - Comprehensive version history (this file)
-- **API_DOCUMENTATION.md** - Complete API reference
-- **DEPLOYMENT_GUIDE.md** - Production deployment instructions
+- **docs/API_REFERENCE.md** - Complete API reference
+- **docs/DEPLOYMENT_GUIDE.md** - Production deployment instructions
 - **SECURITY_AUDIT_REPORT.md** - Security compliance documentation
 - **BUG_FIXES_AND_RESULTS.md** - Detailed fix documentation
 
@@ -241,5 +269,5 @@ docker-compose -f docker-compose.production.yml up -d
 ---
 
 *For detailed security information, see [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md)*
-*For deployment instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)*
-*For API details, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md)*
+*For deployment instructions, see [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)*
+*For API details, see [docs/API_REFERENCE.md](docs/API_REFERENCE.md)*

@@ -12,17 +12,19 @@
 │  \__|     \__| \______/ \__|             \______/ \__|  \__|     │
 │                                                                 │
 │         Production-Ready MCP Crypto Trading Analysis            │
-│            Enterprise-Grade v2.0.0 | MCP 2.1.0+                │
+│            Enterprise-Grade v2.1.0 | MCP 2.1.0+                │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 **Production-Ready cryptocurrency trading analysis server with enterprise-grade security, institutional indicators, real-time portfolio monitoring, and seamless MCP integration for professional trading operations.**
 
+> **Architecture Note**: This project uses a **Python-only architecture** for optimal stability and performance. All MCP functionality is implemented in Python with both stdio and HTTP transport support.
+
 ## Project Status
 
 | Metric | Status | Details |
 |--------|--------|---------|
-| **Version** | ![v2.0.0](https://img.shields.io/badge/version-2.0.0-green) | Production Release |
+| **Version** | ![v2.1.0](https://img.shields.io/badge/version-2.1.0-green) | Latest Release |
 | **Test Success** | ![96.4%](https://img.shields.io/badge/tests-96.4%25-brightgreen) | 27/28 passed |
 | **Runtime Errors** | ![Zero](https://img.shields.io/badge/runtime_errors-0-brightgreen) | Clean execution |
 | **MCP Compliance** | ![2.1.0+](https://img.shields.io/badge/MCP-2.1.0%2B-blue) | Fully compliant |
@@ -136,7 +138,7 @@ python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install production dependencies (2025+ optimized)
-pip install -r requirements_mcp.txt
+pip install -r requirements.txt
 
 # Configure environment variables
 cp .env.production.example .env.production
@@ -150,7 +152,7 @@ python comprehensive_test.py
 python mcp_server_standalone.py
 
 # Option 2: HTTP server (for n8n, REST APIs, web integration)
-python mcp_http_server.py  # Runs on http://localhost:8000
+python mcp_http_server.py  # Runs on http://localhost:4008
 ```
 
 ### Production Deployment
@@ -159,9 +161,9 @@ python mcp_http_server.py  # Runs on http://localhost:8000
 # Quick Docker deployment (2025+ production ready)
 docker-compose -f docker-compose.production.yml up -d
 
-# Or use the enhanced 2025 Dockerfile
-docker build -f Dockerfile.2025 -t mcp-crypto-trading:v2.0.0 .
-docker run -d --name crypto-trading -p 8000:8000 mcp-crypto-trading:v2.0.0
+# Or use the enhanced Dockerfile
+docker build -f Dockerfile -t mcp-crypto-trading:v2.1.0 .
+docker run -d --name crypto-trading -p 4008:4008 mcp-crypto-trading:v2.1.0
 
 # Verify deployment and run comprehensive tests
 python validate_mcp_compliance.py
@@ -171,7 +173,7 @@ python test_enterprise_compliance.py
 docker logs crypto-trading --follow
 
 # Health check endpoint
-curl http://localhost:8000/health
+curl http://localhost:4008/health
 ```
 
 ### HTTP Server Integration
@@ -183,7 +185,7 @@ The MCP Crypto Trading server supports both **stdio** and **HTTP** transports fo
 # Start HTTP server
 python mcp_http_server.py
 
-# Server runs on http://localhost:8000 with these endpoints:
+# Server runs on http://localhost:4008 with these endpoints:
 # • POST /mcp - MCP JSON-RPC 2.0 over HTTP
 # • GET /health - Health check and status
 # • GET /metrics - Server metrics and statistics
@@ -194,18 +196,18 @@ python mcp_http_server.py
 #### HTTP API Usage Examples
 ```bash
 # Test server health
-curl http://localhost:8000/health
+curl http://localhost:4008/health
 
 # Get server metrics
-curl http://localhost:8000/metrics
+curl http://localhost:4008/metrics
 
 # List available tools
-curl -X POST http://localhost:8000/mcp \
+curl -X POST http://localhost:4008/mcp \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}'
 
 # Analyze cryptocurrency
-curl -X POST http://localhost:8000/mcp \
+curl -X POST http://localhost:4008/mcp \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -222,7 +224,7 @@ curl -X POST http://localhost:8000/mcp \
 
 #### Option 1: HTTP Integration (Recommended)
 1. Use **HTTP Request** node in n8n
-2. Configure POST requests to `http://your-server:8000/mcp`
+2. Configure POST requests to `http://your-server:4008/mcp`
 3. Set Content-Type: `application/json`
 4. Use MCP JSON-RPC 2.0 format in request body
 
@@ -523,10 +525,10 @@ python -m pytest tests/load_test.py
 ## Support
 
 **Documentation:**
-- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Complete production setup
-- [API Reference](API_REFERENCE.md) - Detailed tool specifications
-- [Architecture Guide](ARCHITECTURE.md) - Technical system design
-- [n8n Integration](N8N_INTEGRATION.md) - Workflow automation guide
+- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Complete production setup
+- [API Reference](docs/API_REFERENCE.md) - Detailed tool specifications
+- [Architecture Guide](docs/ARCHITECTURE.md) - Technical system design
+- [n8n Integration](docs/N8N_INTEGRATION.md) - Workflow automation guide
 
 **Getting Help:**
 1. Check the troubleshooting section above
@@ -538,4 +540,4 @@ python -m pytest tests/load_test.py
 
 **Production-Ready Trading Intelligence** | Built for professional traders and institutional investors
 
-*Last Updated: September 2025 | Version: 2.0.0 | MCP 2.1.0+ Compatible*
+*Last Updated: September 2025 | Version: 2.1.0 | MCP 2.1.0+ Compatible*

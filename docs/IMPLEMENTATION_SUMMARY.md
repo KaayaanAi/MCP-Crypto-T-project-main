@@ -133,7 +133,7 @@ The MCP server is **immediately deployable** and includes:
 ./start_mcp_server.sh
 
 # Docker Deployment  
-docker run -it mcp-crypto-server:2.0.0
+docker run -it mcp-crypto-server:2.1.0
 
 # Manual Start
 python3 mcp_server_standalone.py
@@ -175,7 +175,7 @@ python3 mcp_server_standalone.py
 
 ✅ **IMPLEMENTATION COMPLETE**
 
-The MCP Crypto Trading Server v2.0.0 is fully functional, tested, and ready for production deployment with complete Kaayaan infrastructure integration.
+The MCP Crypto Trading Server v2.1.0 is fully functional, tested, and ready for production deployment with complete Kaayaan infrastructure integration.
 
 **Key Files Created:**
 - `mcp_server_standalone.py` - Main production server
@@ -194,7 +194,7 @@ The MCP Crypto Trading Server v2.0.0 is fully functional, tested, and ready for 
 ---
 
 **Project**: MCP-Crypto-T-project  
-**Version**: 2.0.0  
+**Version**: 2.1.0  
 **Status**: ✅ Production Ready  
 **Deployment**: 🚀 Ready to Launch  
 **Date**: 2025-08-31

@@ -27,14 +27,35 @@ class KaayaanInfrastructureFactory:
     with Kaayaan database credentials and configurations
     """
     
-    # Production Infrastructure Credentials
-    INFRASTRUCTURE_CONFIG = {
-        "mongodb_uri": "mongodb://username:password@mongodb:27017/",
-        "redis_url": "redis://:password@redis:6379",
-        "postgres_dsn": "postgresql://user:password@postgresql:5432/database",
-        "whatsapp_base_url": "https://your-whatsapp-api.com",
-        "whatsapp_session": "your_session_id"
-    }
+    # Production Infrastructure Credentials - Now using environment variables
+    @property
+    def INFRASTRUCTURE_CONFIG(self):
+        """Get infrastructure configuration from environment variables"""
+        import os
+
+        # Generate secure default values for development if not set
+        def get_secure_default(key: str, default_pattern: str) -> str:
+            env_value = os.getenv(key)
+            if env_value and not env_value.startswith('REPLACE_WITH_'):
+                return env_value
+            return default_pattern
+
+        return {
+            "mongodb_uri": get_secure_default(
+                "MONGODB_URI",
+                f"mongodb://{os.getenv('MONGO_INITDB_ROOT_USERNAME', 'mcp_crypto_admin')}:{os.getenv('MONGO_INITDB_ROOT_PASSWORD', 'dev_password_change_me')}@mongodb:27017/{os.getenv('MONGO_INITDB_DATABASE', 'crypto_trading')}"
+            ),
+            "redis_url": get_secure_default(
+                "REDIS_URL",
+                f"redis://:{os.getenv('REDIS_PASSWORD', 'dev_password_change_me')}@redis:6379"
+            ),
+            "postgres_dsn": get_secure_default(
+                "POSTGRES_DSN",
+                f"postgresql://{os.getenv('POSTGRES_USER', 'mcp_crypto_user')}:{os.getenv('POSTGRES_PASSWORD', 'dev_password_change_me')}@postgresql:5432/{os.getenv('POSTGRES_DB', 'crypto_trading')}"
+            ),
+            "whatsapp_base_url": os.getenv("WHATSAPP_API", "https://api.whatsapp.business.com"),
+            "whatsapp_session": os.getenv("WHATSAPP_SESSION", "development_session_id")
+        }
     
     def __init__(self):
         self._mongodb_client: Optional[motor.AsyncIOMotorClient] = None
@@ -44,69 +65,135 @@ class KaayaanInfrastructureFactory:
         self._initialized = False
         
     async def initialize(self) -> bool:
-        """Initialize all database connections"""
+        """Initialize all database connections with retry logic and graceful degradation"""
         try:
             logger.info("Initializing Kaayaan infrastructure connections...")
+
+            # Initialize MongoDB with retry logic
+            try:
+                self._mongodb_client = motor.AsyncIOMotorClient(
+                    self.INFRASTRUCTURE_CONFIG["mongodb_uri"],
+                    maxPoolSize=50,
+                    minPoolSize=5,
+                    serverSelectionTimeoutMS=5000,
+                    connectTimeoutMS=10000,
+                    socketTimeoutMS=10000
+                )
+
+                # Test MongoDB connection with retry
+                for attempt in range(3):
+                    try:
+                        await self._mongodb_client.admin.command('ping')
+                        logger.info("✅ MongoDB connection established")
+                        break
+                    except Exception as e:
+                        if attempt == 2:
+                            logger.warning(f"⚠️ MongoDB connection failed after 3 attempts: {e}")
+                            self._mongodb_client = None
+                        else:
+                            logger.info(f"MongoDB connection attempt {attempt + 1} failed, retrying...")
+                            await asyncio.sleep(2)
+            except Exception as e:
+                logger.warning(f"⚠️ MongoDB initialization failed: {e}")
+                self._mongodb_client = None
+
+            # Initialize Redis with retry logic
+            try:
+                self._redis_client = redis.from_url(
+                    self.INFRASTRUCTURE_CONFIG["redis_url"],
+                    encoding="utf-8",
+                    decode_responses=True,
+                    max_connections=20,
+                    retry_on_timeout=True,
+                    socket_timeout=5,
+                    socket_connect_timeout=5
+                )
+
+                # Test Redis connection with retry
+                for attempt in range(3):
+                    try:
+                        await self._redis_client.ping()
+                        logger.info("✅ Redis connection established")
+                        break
+                    except Exception as e:
+                        if attempt == 2:
+                            logger.warning(f"⚠️ Redis connection failed after 3 attempts: {e}")
+                            self._redis_client = None
+                        else:
+                            logger.info(f"Redis connection attempt {attempt + 1} failed, retrying...")
+                            await asyncio.sleep(2)
+            except Exception as e:
+                logger.warning(f"⚠️ Redis initialization failed: {e}")
+                self._redis_client = None
             
-            # Initialize MongoDB
-            self._mongodb_client = motor.AsyncIOMotorClient(
-                self.INFRASTRUCTURE_CONFIG["mongodb_uri"],
-                maxPoolSize=50,
-                minPoolSize=5,
-                serverSelectionTimeoutMS=5000,
-                connectTimeoutMS=10000,
-                socketTimeoutMS=10000
-            )
-            
-            # Test MongoDB connection
-            await self._mongodb_client.admin.command('ping')
-            logger.info("✅ MongoDB connection established")
-            
-            # Initialize Redis
-            self._redis_client = redis.from_url(
-                self.INFRASTRUCTURE_CONFIG["redis_url"],
-                encoding="utf-8",
-                decode_responses=True,
-                max_connections=20,
-                retry_on_timeout=True,
-                socket_timeout=5,
-                socket_connect_timeout=5
-            )
-            
-            # Test Redis connection
-            await self._redis_client.ping()
-            logger.info("✅ Redis connection established")
-            
-            # Initialize PostgreSQL
-            self._postgres_pool = await asyncpg.create_pool(
-                self.INFRASTRUCTURE_CONFIG["postgres_dsn"],
-                min_size=5,
-                max_size=20,
-                command_timeout=10,
-                server_settings={
-                    'application_name': 'mcp_crypto_server',
-                    'jit': 'off'
-                }
-            )
-            
-            # Test PostgreSQL connection
-            async with self._postgres_pool.acquire() as conn:
-                await conn.fetchval('SELECT 1')
-            logger.info("✅ PostgreSQL connection established")
+            # Initialize PostgreSQL with retry logic
+            try:
+                for attempt in range(3):
+                    try:
+                        self._postgres_pool = await asyncpg.create_pool(
+                            self.INFRASTRUCTURE_CONFIG["postgres_dsn"],
+                            min_size=5,
+                            max_size=20,
+                            command_timeout=10,
+                            server_settings={
+                                'application_name': 'mcp_crypto_server',
+                                'jit': 'off'
+                            }
+                        )
+
+                        # Test PostgreSQL connection
+                        async with self._postgres_pool.acquire() as conn:
+                            await conn.fetchval('SELECT 1')
+                        logger.info("✅ PostgreSQL connection established")
+                        break
+                    except Exception as e:
+                        if self._postgres_pool:
+                            await self._postgres_pool.close()
+                            self._postgres_pool = None
+                        if attempt == 2:
+                            logger.warning(f"⚠️ PostgreSQL connection failed after 3 attempts: {e}")
+                        else:
+                            logger.info(f"PostgreSQL connection attempt {attempt + 1} failed, retrying...")
+                            await asyncio.sleep(2)
+            except Exception as e:
+                logger.warning(f"⚠️ PostgreSQL initialization failed: {e}")
+                self._postgres_pool = None
             
             # Initialize HTTP session for WhatsApp API
-            self._http_session = aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=30),
-                connector=aiohttp.TCPConnector(limit=100, limit_per_host=20)
-            )
-            logger.info("✅ HTTP session initialized")
-            
-            self._initialized = True
-            logger.info("🚀 Kaayaan infrastructure fully initialized")
-            return True
-            
+            try:
+                self._http_session = aiohttp.ClientSession(
+                    timeout=aiohttp.ClientTimeout(total=30),
+                    connector=aiohttp.TCPConnector(limit=100, limit_per_host=20)
+                )
+                logger.info("✅ HTTP session initialized")
+            except Exception as e:
+                logger.warning(f"⚠️ HTTP session initialization failed: {e}")
+                self._http_session = None
+
+            # Check if at least one core service is available
+            available_services = []
+            if self._mongodb_client:
+                available_services.append("MongoDB")
+            if self._redis_client:
+                available_services.append("Redis")
+            if self._postgres_pool:
+                available_services.append("PostgreSQL")
+            if self._http_session:
+                available_services.append("HTTP")
+
+            if available_services:
+                self._initialized = True
+                logger.info(f"🚀 Kaayaan infrastructure partially initialized with: {', '.join(available_services)}")
+                if len(available_services) < 4:
+                    logger.warning("⚠️ Some services failed to initialize - running in degraded mode")
+                return True
+            else:
+                logger.error("❌ No infrastructure services could be initialized")
+                await self._cleanup_partial_connections()
+                return False
+
         except Exception as e:
-            logger.error(f"❌ Failed to initialize Kaayaan infrastructure: {e}")
+            logger.error(f"❌ Critical error during Kaayaan infrastructure initialization: {e}")
             await self._cleanup_partial_connections()
             return False
     
@@ -125,40 +212,62 @@ class KaayaanInfrastructureFactory:
             logger.error(f"Error during cleanup: {e}")
     
     async def create_database_manager(self) -> DatabaseManager:
-        """Create configured DatabaseManager"""
+        """Create configured DatabaseManager with graceful degradation"""
         if not self._initialized:
             raise RuntimeError("Infrastructure not initialized. Call initialize() first.")
-        
+
+        # Log which services are available
+        available_services = []
+        if self._mongodb_client:
+            available_services.append("MongoDB")
+        if self._redis_client:
+            available_services.append("Redis")
+        if self._postgres_pool:
+            available_services.append("PostgreSQL")
+
+        if not available_services:
+            raise RuntimeError("No database services available")
+
+        logger.info(f"Creating DatabaseManager with: {', '.join(available_services)}")
+
         db_manager = DatabaseManager(
             self._mongodb_client,
-            self._redis_client, 
+            self._redis_client,
             self._postgres_pool
         )
-        
-        # Initialize collections and tables
-        await db_manager.initialize_collections()
-        
-        logger.info("✅ DatabaseManager created and initialized")
+
+        # Initialize collections and tables (with error handling)
+        try:
+            await db_manager.initialize_collections()
+            logger.info("✅ DatabaseManager created and initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ Database initialization had issues: {e}")
+            logger.info("✅ DatabaseManager created in degraded mode")
+
         return db_manager
     
     async def create_alert_manager(self, database_manager: DatabaseManager) -> AlertManager:
-        """Create configured AlertManager"""
+        """Create configured AlertManager with graceful degradation"""
         if not self._initialized:
             raise RuntimeError("Infrastructure not initialized. Call initialize() first.")
-        
+
         whatsapp_config = WhatsAppConfig(
             base_url=self.INFRASTRUCTURE_CONFIG["whatsapp_base_url"],
             session=self.INFRASTRUCTURE_CONFIG["whatsapp_session"],
             timeout_seconds=30
         )
-        
+
+        if not self._http_session:
+            logger.warning("⚠️ HTTP session not available - AlertManager will have limited functionality")
+
         alert_manager = AlertManager(
             database_manager=database_manager,
             http_session=self._http_session,
             whatsapp_config=whatsapp_config
         )
-        
-        logger.info("✅ AlertManager created")
+
+        status = "with WhatsApp integration" if self._http_session else "in limited mode (no WhatsApp)"
+        logger.info(f"✅ AlertManager created {status}")
         return alert_manager
     
     async def create_risk_manager(self, database_manager: DatabaseManager) -> RiskManager:

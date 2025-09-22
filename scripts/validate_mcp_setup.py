@@ -109,10 +109,10 @@ def main():
     # Documentation files
     doc_files = [
         ("README.md", "Main Documentation"),
-        ("DEPLOYMENT_GUIDE.md", "Deployment Guide"),
-        ("API_REFERENCE.md", "API Reference"),
-        ("ARCHITECTURE.md", "Architecture Documentation"),
-        ("N8N_INTEGRATION.md", "n8n Integration Guide"),
+        ("docs/DEPLOYMENT_GUIDE.md", "Deployment Guide"),
+        ("docs/API_REFERENCE.md", "API Reference"),
+        ("docs/ARCHITECTURE.md", "Architecture Documentation"),
+        ("docs/N8N_INTEGRATION.md", "n8n Integration Guide"),
     ]
     
     print("\n📚 DOCUMENTATION:")

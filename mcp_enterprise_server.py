@@ -33,6 +33,13 @@ except ImportError:
 # Import our standalone MCP server
 from mcp_server_standalone import MCPCryptoServer
 
+# Constants
+MAX_REQUESTS_PER_MINUTE = 30  # Rate limit for enterprise clients
+TOOL_EXECUTION_TIMEOUT = 30.0  # Seconds before tool execution fails
+TOOLS_CALL_TARGET_MS = 30000  # Target response time for tools/call in milliseconds
+KEEP_ALIVE_TIMEOUT = 30  # Keep alive timeout for uvicorn
+GRACEFUL_SHUTDOWN_TIMEOUT = 30  # Graceful shutdown timeout
+
 # Configure enterprise logging
 logging.basicConfig(
     level=logging.INFO,
@@ -90,7 +97,7 @@ class PerformanceMetrics:
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Enterprise rate limiting with sliding window"""
 
-    def __init__(self, app, calls_per_minute: int = 30):
+    def __init__(self, app, calls_per_minute: int = MAX_REQUESTS_PER_MINUTE):
         super().__init__(app)
         self.calls_per_minute = calls_per_minute
         self.requests = {}
@@ -346,7 +353,7 @@ class EnterpriseMCPWrapper:
         try:
             result = await asyncio.wait_for(
                 self.mcp_server.execute_tool(tool_name, tool_args),
-                timeout=30.0  # 30 second timeout
+                timeout=TOOL_EXECUTION_TIMEOUT
             )
 
             return {
@@ -432,7 +439,7 @@ app = FastAPI(
 # Add security middleware
 app.add_middleware(SecurityMiddleware)
 app.add_middleware(PerformanceMiddleware)
-app.add_middleware(RateLimitMiddleware, calls_per_minute=int(os.getenv("MCP_RATE_LIMIT", "30")))
+app.add_middleware(RateLimitMiddleware, calls_per_minute=int(os.getenv("MCP_RATE_LIMIT", str(MAX_REQUESTS_PER_MINUTE))))
 
 # Add CORS middleware with restricted origins for production
 app.add_middleware(
@@ -536,12 +543,12 @@ async def metrics_endpoint():
         },
         "security": {
             "rate_limit_violations": app.metrics.rate_limit_violations,
-            "rate_limit_per_minute": int(os.getenv("MCP_RATE_LIMIT", "30"))
+            "rate_limit_per_minute": int(os.getenv("MCP_RATE_LIMIT", str(MAX_REQUESTS_PER_MINUTE)))
         },
         "sla_compliance": {
             "initialize_target_ms": 500,
             "tools_list_target_ms": 1000,
-            "tools_call_target_ms": 30000,
+            "tools_call_target_ms": TOOLS_CALL_TARGET_MS,
             "current_avg_ms": round(app.metrics.avg_response_time * 1000, 1),
             "sla_met": app.metrics.avg_response_time < 1.0
         }
@@ -605,8 +612,8 @@ async def main():
         log_level=os.getenv("MCP_LOG_LEVEL", "info").lower(),
         access_log=True,
         workers=1,  # Single worker for state consistency
-        timeout_keep_alive=30,
-        timeout_graceful_shutdown=30
+        timeout_keep_alive=KEEP_ALIVE_TIMEOUT,
+        timeout_graceful_shutdown=GRACEFUL_SHUTDOWN_TIMEOUT
     )
 
     server = uvicorn.Server(config)
