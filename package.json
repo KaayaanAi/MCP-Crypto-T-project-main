@@ -1,16 +1,21 @@
 {
   "name": "mcp-crypto-trading-project",
   "version": "2.0.0",
+  "type": "module",
   "description": "Production-Ready MCP Crypto Trading Analysis Server - Enterprise-grade cryptocurrency trading analysis with real-time market data, technical indicators, and automated trading strategies",
-  "main": "mcp_server.py",
+  "main": "src/server.js",
   "scripts": {
-    "start": "python mcp_server.py",
-    "start:standalone": "python mcp_server_standalone.py",
-    "start:enterprise": "python mcp_enterprise_server.py",
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "start:python": "python mcp_server_standalone.py",
     "start:http": "python mcp_http_server.py",
-    "test": "python -m pytest tests/ -v",
+    "test": "node tests/validate.js",
+    "test:python": "python -m pytest tests/ -v",
     "test:compliance": "python test_enterprise_compliance.py",
     "test:mcp": "python validate_mcp_compliance.py",
+    "check-updates": "npx npm-check-updates",
+    "update-all": "npx npm-check-updates -u && npm install",
+    "audit": "npm audit fix --force",
     "health": "python scripts/health_check.py",
     "docker:build": "docker build -f Dockerfile.2025 -t mcp-crypto-trading:2.0.0 .",
     "docker:run": "docker-compose -f docker-compose.production.yml up -d",
@@ -48,8 +53,29 @@
   },
   "homepage": "https://github.com/kaayaanai/mcp-crypto-trading-project#readme",
   "engines": {
-    "python": ">=3.13.0",
-    "node": ">=18.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0",
+    "python": ">=3.13.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "express": "latest",
+    "ws": "latest",
+    "mongodb": "latest",
+    "redis": "latest",
+    "axios": "latest",
+    "dotenv": "latest",
+    "cors": "latest",
+    "helmet": "latest",
+    "express-rate-limit": "latest",
+    "compression": "latest",
+    "winston": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "latest",
+    "jest": "latest",
+    "supertest": "latest",
+    "eslint": "latest"
   },
   "os": [
     "linux",
