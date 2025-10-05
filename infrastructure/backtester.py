@@ -6,7 +6,7 @@ Advanced backtesting engine with multiple strategy types and performance analyti
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 import numpy as np
 import pandas as pd
 from dataclasses import asdict
@@ -49,7 +49,7 @@ class Backtester:
         
     async def run_backtest(self, symbol: str, strategy: str, start_date: str,
                           end_date: str, initial_capital: float = 10000,
-                          strategy_params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+                          strategy_params: dict[str, Any | None] = None) -> dict[str, Any]:
         """
         Run comprehensive backtest for specified strategy and period
         """
@@ -107,7 +107,7 @@ class Backtester:
             raise
     
     async def _get_historical_data(self, symbol: str, start_date: datetime,
-                                 end_date: datetime) -> List[Dict[str, Any]]:
+                                 end_date: datetime) -> list[dict[str, Any]]:
         """Get historical analysis data for backtesting"""
         try:
             # Get historical analysis from database
@@ -127,7 +127,7 @@ class Backtester:
             return []
     
     async def _generate_synthetic_data(self, symbol: str, start_date: datetime,
-                                     end_date: datetime) -> List[Dict[str, Any]]:
+                                     end_date: datetime) -> list[dict[str, Any]]:
         """Generate synthetic historical data for backtesting (fallback)"""
         try:
             # Generate synthetic price and analysis data
@@ -179,9 +179,9 @@ class Backtester:
             return []
     
     async def _execute_strategy_backtest(self, symbol: str, strategy_name: str,
-                                       historical_data: List[Dict[str, Any]],
+                                       historical_data: list[dict[str, Any]],
                                        initial_capital: float,
-                                       strategy_params: Dict[str, Any]) -> Dict[str, Any]:
+                                       strategy_params: dict[str, Any]) -> dict[str, Any]:
         """Execute strategy backtest on historical data"""
         try:
             strategy_func = self.strategies[strategy_name]
@@ -316,9 +316,9 @@ class Backtester:
             logger.error(f"Strategy backtest execution failed: {e}")
             raise
     
-    async def _technical_momentum_strategy(self, current_analysis: Dict[str, Any],
-                                         historical_analyses: List[Dict[str, Any]],
-                                         params: Dict[str, Any]) -> Dict[str, str]:
+    async def _technical_momentum_strategy(self, current_analysis: dict[str, Any],
+                                         historical_analyses: list[dict[str, Any]],
+                                         params: dict[str, Any]) -> dict[str, str]:
         """Technical momentum strategy implementation"""
         try:
             # Strategy parameters
@@ -367,9 +367,9 @@ class Backtester:
             logger.error(f"Technical momentum strategy error: {e}")
             return {'action': 'HOLD', 'confidence': 0, 'reasoning': 'Strategy error'}
     
-    async def _mean_reversion_strategy(self, current_analysis: Dict[str, Any],
-                                     historical_analyses: List[Dict[str, Any]],
-                                     params: Dict[str, Any]) -> Dict[str, str]:
+    async def _mean_reversion_strategy(self, current_analysis: dict[str, Any],
+                                     historical_analyses: list[dict[str, Any]],
+                                     params: dict[str, Any]) -> dict[str, str]:
         """Mean reversion strategy implementation"""
         try:
             # Strategy parameters
@@ -410,9 +410,9 @@ class Backtester:
             logger.error(f"Mean reversion strategy error: {e}")
             return {'action': 'HOLD', 'confidence': 0, 'reasoning': 'Strategy error'}
     
-    async def _breakout_strategy(self, current_analysis: Dict[str, Any],
-                               historical_analyses: List[Dict[str, Any]],
-                               params: Dict[str, Any]) -> Dict[str, str]:
+    async def _breakout_strategy(self, current_analysis: dict[str, Any],
+                               historical_analyses: list[dict[str, Any]],
+                               params: dict[str, Any]) -> dict[str, str]:
         """Breakout strategy implementation"""
         try:
             # Strategy parameters
@@ -458,9 +458,9 @@ class Backtester:
             logger.error(f"Breakout strategy error: {e}")
             return {'action': 'HOLD', 'confidence': 0, 'reasoning': 'Strategy error'}
     
-    async def _institutional_following_strategy(self, current_analysis: Dict[str, Any],
-                                              historical_analyses: List[Dict[str, Any]],
-                                              params: Dict[str, Any]) -> Dict[str, str]:
+    async def _institutional_following_strategy(self, current_analysis: dict[str, Any],
+                                              historical_analyses: list[dict[str, Any]],
+                                              params: dict[str, Any]) -> dict[str, str]:
         """Institutional following strategy implementation"""
         try:
             # Strategy parameters
@@ -517,9 +517,9 @@ class Backtester:
             logger.error(f"Institutional following strategy error: {e}")
             return {'action': 'HOLD', 'confidence': 0, 'reasoning': 'Strategy error'}
     
-    async def _multi_timeframe_strategy(self, current_analysis: Dict[str, Any],
-                                      historical_analyses: List[Dict[str, Any]],
-                                      params: Dict[str, Any]) -> Dict[str, str]:
+    async def _multi_timeframe_strategy(self, current_analysis: dict[str, Any],
+                                      historical_analyses: list[dict[str, Any]],
+                                      params: dict[str, Any]) -> dict[str, str]:
         """Multi-timeframe strategy implementation"""
         try:
             # This would analyze multiple timeframes in production
@@ -584,9 +584,9 @@ class Backtester:
             logger.error(f"Multi-timeframe strategy error: {e}")
             return {'action': 'HOLD', 'confidence': 0, 'reasoning': 'Strategy error'}
     
-    def _calculate_performance_metrics(self, trades: List[Dict[str, Any]],
-                                     equity_curve: List[Dict[str, Any]],
-                                     initial_capital: float) -> Dict[str, Any]:
+    def _calculate_performance_metrics(self, trades: list[dict[str, Any]],
+                                     equity_curve: list[dict[str, Any]],
+                                     initial_capital: float) -> dict[str, Any]:
         """Calculate comprehensive performance metrics"""
         try:
             if not trades or not equity_curve:

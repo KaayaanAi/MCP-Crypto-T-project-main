@@ -6,7 +6,7 @@ Handles audit trails, performance analytics, and structured data storage
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 import asyncpg
 import os
 import json
@@ -23,7 +23,7 @@ class PostgresClient:
             "postgresql://user:password@postgresql:5432/database"
         )
         
-        self.pool: Optional[asyncpg.Pool] = None
+        self.pool: asyncpg.Pool | None = None
         
     async def connect(self):
         """Establish PostgreSQL connection pool"""
@@ -240,7 +240,7 @@ class PostgresClient:
                 logger.warning(f"Failed to create index: {e}")
     
     # Trading Decision Logging
-    async def log_trading_decision(self, decision_data: Dict[str, Any]) -> bool:
+    async def log_trading_decision(self, decision_data: dict[str, Any]) -> bool:
         """Log trading decision for audit trail"""
         try:
             async with self.pool.acquire() as conn:
@@ -272,7 +272,7 @@ class PostgresClient:
             logger.error(f"Failed to log trading decision: {e}")
             return False
     
-    async def update_decision_outcome(self, decision_id: str, outcome_data: Dict[str, Any]) -> bool:
+    async def update_decision_outcome(self, decision_id: str, outcome_data: dict[str, Any]) -> bool:
         """Update trading decision with actual outcome"""
         try:
             async with self.pool.acquire() as conn:
@@ -298,7 +298,7 @@ class PostgresClient:
             return False
     
     # Performance Analytics
-    async def log_performance_metric(self, metric_data: Dict[str, Any]) -> bool:
+    async def log_performance_metric(self, metric_data: dict[str, Any]) -> bool:
         """Log performance metrics for analytics"""
         try:
             async with self.pool.acquire() as conn:
@@ -321,8 +321,8 @@ class PostgresClient:
             logger.error(f"Failed to log performance metric: {e}")
             return False
     
-    async def get_performance_analytics(self, metric_name: str, symbol: Optional[str] = None, 
-                                      days_back: int = 30) -> List[Dict[str, Any]]:
+    async def get_performance_analytics(self, metric_name: str, symbol: str | None = None, 
+                                      days_back: int = 30) -> list[dict[str, Any]]:
         """Retrieve performance analytics with aggregation"""
         try:
             async with self.pool.acquire() as conn:
@@ -367,7 +367,7 @@ class PostgresClient:
             return []
     
     # Risk Assessment Logging
-    async def log_risk_assessment(self, risk_data: Dict[str, Any]) -> bool:
+    async def log_risk_assessment(self, risk_data: dict[str, Any]) -> bool:
         """Log risk assessment for compliance and analysis"""
         try:
             async with self.pool.acquire() as conn:
@@ -400,7 +400,7 @@ class PostgresClient:
             return False
     
     # Backtest Results Storage
-    async def store_backtest_result(self, backtest_data: Dict[str, Any]) -> bool:
+    async def store_backtest_result(self, backtest_data: dict[str, Any]) -> bool:
         """Store comprehensive backtest results"""
         try:
             async with self.pool.acquire() as conn:
@@ -443,7 +443,7 @@ class PostgresClient:
             logger.error(f"Failed to store backtest result: {e}")
             return False
     
-    async def get_best_strategies(self, symbol: Optional[str] = None, limit: int = 10) -> List[Dict[str, Any]]:
+    async def get_best_strategies(self, symbol: str | None = None, limit: int = 10) -> list[dict[str, Any]]:
         """Get best performing strategies based on multiple metrics"""
         try:
             async with self.pool.acquire() as conn:
@@ -485,7 +485,7 @@ class PostgresClient:
             return []
     
     # Alert History
-    async def log_alert(self, alert_data: Dict[str, Any]) -> bool:
+    async def log_alert(self, alert_data: dict[str, Any]) -> bool:
         """Log alert delivery and response times"""
         try:
             async with self.pool.acquire() as conn:
@@ -513,7 +513,7 @@ class PostgresClient:
             return False
     
     # System Performance Monitoring
-    async def log_system_performance(self, performance_data: Dict[str, Any]) -> bool:
+    async def log_system_performance(self, performance_data: dict[str, Any]) -> bool:
         """Log system performance for monitoring"""
         try:
             async with self.pool.acquire() as conn:
@@ -538,7 +538,7 @@ class PostgresClient:
             logger.error(f"Failed to log system performance: {e}")
             return False
     
-    async def get_system_health_metrics(self, hours_back: int = 24) -> Dict[str, Any]:
+    async def get_system_health_metrics(self, hours_back: int = 24) -> dict[str, Any]:
         """Get system health metrics and statistics"""
         try:
             async with self.pool.acquire() as conn:
@@ -580,7 +580,7 @@ class PostgresClient:
             return {"health_stats": {}, "component_stats": []}
     
     # Market Regime Tracking
-    async def log_market_regime(self, regime_data: Dict[str, Any]) -> bool:
+    async def log_market_regime(self, regime_data: dict[str, Any]) -> bool:
         """Log market regime transitions"""
         try:
             async with self.pool.acquire() as conn:
@@ -607,7 +607,7 @@ class PostgresClient:
             logger.error(f"Failed to log market regime: {e}")
             return False
     
-    async def get_decision_performance_summary(self, symbol: Optional[str] = None, days_back: int = 30) -> Dict[str, Any]:
+    async def get_decision_performance_summary(self, symbol: str | None = None, days_back: int = 30) -> dict[str, Any]:
         """Get comprehensive decision performance summary"""
         try:
             async with self.pool.acquire() as conn:
@@ -643,7 +643,7 @@ class PostgresClient:
             logger.error(f"Failed to get decision performance summary: {e}")
             return {}
     
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform PostgreSQL health check"""
         try:
             if not self.pool:

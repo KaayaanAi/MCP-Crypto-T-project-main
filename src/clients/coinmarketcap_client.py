@@ -1,6 +1,9 @@
 import aiohttp
+import logging
 import os
 from typing import Dict, Any
+
+logger = logging.getLogger(__name__)
 
 class CoinMarketCapClient:
     def __init__(self):
@@ -13,7 +16,7 @@ class CoinMarketCapClient:
         self.standard_limit = 3000  # calls per minute
         self.session_timeout = 30  # Connection timeout
         
-    async def _make_request(self, endpoint: str, params: Dict[str, Any] = None) -> Dict:
+    async def _make_request(self, endpoint: str, params: dict[str, Any] = None) -> Dict:
         """Make request to CoinMarketCap API"""
         url = f"{self.base_url}{endpoint}"
         headers = {
@@ -41,7 +44,7 @@ class CoinMarketCapClient:
             data = await self._make_request("/cryptocurrency/quotes/latest", params)
             return data.get("data", {})
         except Exception as e:
-            print(f"Error fetching CoinMarketCap data: {e}")
+            logger.error(f"Error fetching CoinMarketCap data: {e}")
             return {}
     
     async def get_global_metrics(self) -> Dict:
@@ -50,5 +53,5 @@ class CoinMarketCapClient:
             data = await self._make_request("/global-metrics/quotes/latest")
             return data.get("data", {})
         except Exception as e:
-            print(f"Error fetching global metrics: {e}")
+            logger.error(f"Error fetching global metrics: {e}")
             return {}

@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-async def check_mcp_server() -> Dict[str, Any]:
+async def check_mcp_server() -> dict[str, Any]:
     """Check MCP server health"""
     try:
         # Import after adding to path
@@ -41,7 +41,7 @@ async def check_mcp_server() -> Dict[str, Any]:
             "error": f"MCP server check failed: {e}"
         }
 
-async def check_infrastructure() -> Dict[str, Any]:
+async def check_infrastructure() -> dict[str, Any]:
     """Check infrastructure connectivity"""
     try:
         from infrastructure.kaayaan_factory import quick_health_check
@@ -63,7 +63,7 @@ async def check_infrastructure() -> Dict[str, Any]:
             "error": f"Infrastructure check failed: {e}"
         }
 
-def check_environment() -> Dict[str, Any]:
+def check_environment() -> dict[str, Any]:
     """Check environment configuration"""
     try:
         from dotenv import load_dotenv
@@ -99,7 +99,7 @@ def check_environment() -> Dict[str, Any]:
             "error": f"Environment check failed: {e}"
         }
 
-def check_dependencies() -> Dict[str, Any]:
+def check_dependencies() -> dict[str, Any]:
     """Check critical dependencies"""
     try:
         dependencies = {
@@ -145,7 +145,7 @@ def check_dependencies() -> Dict[str, Any]:
             "error": f"Dependency check failed: {e}"
         }
 
-async def perform_health_check() -> Dict[str, Any]:
+async def perform_health_check() -> dict[str, Any]:
     """Perform comprehensive health check"""
     start_time = time.time()
     

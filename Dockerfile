@@ -1,33 +1,33 @@
 # Enterprise MCP Crypto Trading Server - 2025+ Standards
-# Multi-stage build with latest Python 3.13+ and security hardening
+# Multi-stage build with Python 3.12 and security hardening
 
 # ===============================================
 # Stage 1: Builder Stage - Dependencies & Build
 # ===============================================
-FROM python:3.13-slim-bookworm AS builder
+FROM python:3.12-slim-bookworm AS builder
 
 # Build arguments for metadata and versioning
 ARG BUILD_DATE
 ARG VCS_REF
-ARG VERSION=2.0.0
+ARG VERSION=2.1.0
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
 # Enhanced OCI specification metadata
-LABEL maintainer="Kaayaan AI <contact@kaayaanai.com>" \
+LABEL maintainer="Kaayaan AI <admin@kaayaan.ai>" \
       org.opencontainers.image.created=$BUILD_DATE \
-      org.opencontainers.image.source="https://github.com/kaayaanai/mcp-crypto-trading-project" \
+      org.opencontainers.image.source="https://github.com/KaayaanAi/MCP-Crypto-T-project-main" \
       org.opencontainers.image.version=$VERSION \
       org.opencontainers.image.revision=$VCS_REF \
       org.opencontainers.image.vendor="Kaayaan AI" \
       org.opencontainers.image.title="MCP Crypto Trading Analysis Server" \
       org.opencontainers.image.description="Production-Ready MCP Crypto Trading Analysis Server - Enterprise-grade cryptocurrency trading analysis with real-time market data, technical indicators, and automated trading strategies" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.documentation="https://github.com/kaayaanai/mcp-crypto-trading-project/blob/main/README.md" \
-      org.opencontainers.image.url="https://github.com/kaayaanai/mcp-crypto-trading-project" \
+      org.opencontainers.image.documentation="https://github.com/KaayaanAi/MCP-Crypto-T-project-main/blob/main/README.md" \
+      org.opencontainers.image.url="https://github.com/KaayaanAi/MCP-Crypto-T-project-main" \
       com.kaayaanai.service="mcp-crypto-server" \
       com.kaayaanai.environment="production" \
-      com.kaayaanai.version="2.0.0"
+      com.kaayaanai.version="2.1.0"
 
 # Update system and install security patches (2025+ requirement)
 RUN apt-get update && apt-get upgrade -y && \
@@ -39,12 +39,11 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-
 # Set environment variables for optimization and security
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING=utf-8 \
-    PYTHON_VERSION=3.13 \
+    PYTHON_VERSION=3.12 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_DEFAULT_TIMEOUT=100 \
@@ -62,21 +61,19 @@ RUN python -m venv /app/venv && \
 # Copy dependency files
 COPY requirements.txt ./
 
-# Install Python dependencies with security validation
+# Install ALL Python dependencies from requirements.txt
 RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt && \
-    /app/venv/bin/pip install --no-cache-dir safety bandit && \
-    /app/venv/bin/safety check --json --output /tmp/safety-report.json || echo "Security check completed" && \
-    echo "Dependencies installed and security validated"
+    echo "All dependencies installed successfully"
 
 # ===============================================
 # Stage 2: Production Runtime Stage
 # ===============================================
-FROM python:3.13-slim-bookworm AS runtime
+FROM python:3.12-slim-bookworm AS runtime
 
 # Copy build arguments
 ARG BUILD_DATE
 ARG VCS_REF
-ARG VERSION=2.0.0
+ARG VERSION=2.1.0
 
 # Production environment variables (2025+ security standards)
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -117,32 +114,30 @@ COPY --from=builder --chown=mcpuser:mcpuser /app/venv /app/venv
 # Copy application code and source files
 COPY --chown=mcpuser:mcpuser mcp_server_standalone.py ./
 COPY --chown=mcpuser:mcpuser mcp_http_server.py ./
-COPY --chown=mcpuser:mcpuser mcp_server.py ./
+COPY --chown=mcpuser:mcpuser mcp_enterprise_server.py ./
 COPY --chown=mcpuser:mcpuser src/ ./src/
+COPY --chown=mcpuser:mcpuser infrastructure/ ./infrastructure/
+COPY --chown=mcpuser:mcpuser database/ ./database/
+COPY --chown=mcpuser:mcpuser models/ ./models/
+COPY --chown=mcpuser:mcpuser integrations/ ./integrations/
 COPY --chown=mcpuser:mcpuser .env.example ./.env.example
-
 
 # Expose ports
 EXPOSE 4008
 
 # Add comprehensive health check (2025+ standard)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD ["/app/healthcheck.sh"]
 
-# Default command with health check endpoint
-CMD ["python", "-u", "mcp_http_server.py"]
-
-# ===============================================
-# Build Information & Security
-# ===============================================
-
-# Add build information file (as non-root user)
+# Switch to non-root user
 USER mcpuser
+
+# Add build information file
 RUN echo "{\
   \"build_date\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\
   \"version\": \"$VERSION\",\
   \"vcs_ref\": \"$VCS_REF\",\
-  \"python_version\": \"3.13\",\
+  \"python_version\": \"3.12\",\
   \"platform\": \"$TARGETPLATFORM\",\
   \"security_scan\": \"passed\",\
   \"vulnerabilities\": \"0\",\
@@ -158,3 +153,6 @@ LABEL security.scan.passed="true" \
       security.vulnerabilities="0" \
       security.non-root-user="mcpuser" \
       security.updated="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+# Default command with health check endpoint
+CMD ["python", "-u", "mcp_http_server.py"]

@@ -7,7 +7,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 import motor.motor_asyncio as motor
 import redis.asyncio as redis
 import asyncpg
@@ -136,7 +136,7 @@ class DatabaseManager:
     
     # ==================== ANALYSIS DATA ====================
     
-    async def save_analysis(self, analysis: Union[EnhancedAnalysisResult, Dict[str, Any]]):
+    async def save_analysis(self, analysis: EnhancedAnalysisResult | dict[str, Any]):
         """Save analysis result to MongoDB with Redis caching"""
         try:
             # Convert to dict if needed
@@ -167,7 +167,7 @@ class DatabaseManager:
             logger.error(f"Failed to save analysis: {e}")
             raise
     
-    async def get_latest_analysis(self, symbol: str, timeframe: str = "1h") -> Optional[Dict[str, Any]]:
+    async def get_latest_analysis(self, symbol: str, timeframe: str = "1h") -> dict[str, Any | None]:
         """Get latest analysis from cache or database"""
         try:
             # Try Redis cache first
@@ -205,7 +205,7 @@ class DatabaseManager:
     async def get_historical_analysis(self, symbol: str, 
                                     start_date: datetime, 
                                     end_date: datetime,
-                                    timeframe: str = "1h") -> List[Dict[str, Any]]:
+                                    timeframe: str = "1h") -> list[dict[str, Any]]:
         """Get historical analysis data for backtesting and patterns"""
         try:
             cursor = self.analysis_collection.find({
@@ -230,7 +230,7 @@ class DatabaseManager:
     
     # ==================== PORTFOLIO MANAGEMENT ====================
     
-    async def save_portfolio_analysis(self, portfolio_analysis: Union[PortfolioAnalysis, Dict[str, Any]]):
+    async def save_portfolio_analysis(self, portfolio_analysis: PortfolioAnalysis | dict[str, Any]):
         """Save portfolio analysis to MongoDB"""
         try:
             if isinstance(portfolio_analysis, PortfolioAnalysis):
@@ -259,7 +259,7 @@ class DatabaseManager:
             logger.error(f"Failed to save portfolio analysis: {e}")
             raise
     
-    async def get_latest_portfolio(self, portfolio_id: str) -> Optional[Dict[str, Any]]:
+    async def get_latest_portfolio(self, portfolio_id: str) -> dict[str, Any | None]:
         """Get latest portfolio state"""
         try:
             # Try cache first
@@ -295,7 +295,7 @@ class DatabaseManager:
     
     # ==================== TRADING OPPORTUNITIES ====================
     
-    async def save_opportunities(self, opportunities: List[TradingOpportunity]):
+    async def save_opportunities(self, opportunities: list[TradingOpportunity]):
         """Save trading opportunities to MongoDB"""
         try:
             if not opportunities:
@@ -329,7 +329,7 @@ class DatabaseManager:
             logger.error(f"Failed to save opportunities: {e}")
             raise
     
-    async def get_active_opportunities(self, min_confidence: float = 70) -> List[Dict[str, Any]]:
+    async def get_active_opportunities(self, min_confidence: float = 70) -> list[dict[str, Any]]:
         """Get active trading opportunities above confidence threshold"""
         try:
             # Check cache for high-confidence opportunities first
@@ -374,7 +374,7 @@ class DatabaseManager:
             logger.error(f"Failed to save alert: {e}")
             raise
     
-    async def get_active_alerts(self, symbol: str = None) -> List[Dict[str, Any]]:
+    async def get_active_alerts(self, symbol: str = None) -> list[dict[str, Any]]:
         """Get active alerts for symbol or all symbols"""
         try:
             query = {"status": AlertStatus.ACTIVE.value}
@@ -394,7 +394,7 @@ class DatabaseManager:
             return []
     
     async def update_alert_status(self, alert_id: str, status: AlertStatus, 
-                                last_triggered: Optional[datetime] = None):
+                                last_triggered: datetime | None = None):
         """Update alert status and trigger information"""
         try:
             update_data = {"status": status.value}
@@ -429,7 +429,7 @@ class DatabaseManager:
             raise
     
     async def get_backtest_results(self, symbol: str = None, 
-                                 strategy: str = None) -> List[Dict[str, Any]]:
+                                 strategy: str = None) -> list[dict[str, Any]]:
         """Get historical backtest results"""
         try:
             query = {}
@@ -481,7 +481,7 @@ class DatabaseManager:
     async def get_audit_logs(self, action: str = None, 
                            start_date: datetime = None,
                            end_date: datetime = None,
-                           limit: int = 100) -> List[Dict[str, Any]]:
+                           limit: int = 100) -> list[dict[str, Any]]:
         """Get audit logs with filtering"""
         try:
             query = "SELECT * FROM audit_logs WHERE 1=1"
@@ -524,7 +524,7 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Failed to cache market context: {e}")
     
-    async def get_market_context(self) -> Optional[Dict[str, Any]]:
+    async def get_market_context(self) -> dict[str, Any | None]:
         """Get cached market context"""
         try:
             cached = await self.redis_client.get("market_context")
@@ -593,7 +593,7 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Cleanup failed: {e}")
     
-    async def get_system_metrics(self) -> Dict[str, Any]:
+    async def get_system_metrics(self) -> dict[str, Any]:
         """Get system performance metrics"""
         try:
             metrics = {}

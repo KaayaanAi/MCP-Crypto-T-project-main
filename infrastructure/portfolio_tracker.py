@@ -6,7 +6,7 @@ Comprehensive portfolio monitoring with correlation analysis and risk assessment
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any
 import numpy as np
 import pandas as pd
 from dataclasses import asdict
@@ -42,8 +42,8 @@ class PortfolioTracker:
         # Performance tracking
         self.benchmark_symbol = "BTCUSDT"  # Default benchmark
         
-    async def analyze_portfolio(self, portfolio_id: str, symbols: List[str],
-                              risk_level: str = "moderate") -> Dict[str, Any]:
+    async def analyze_portfolio(self, portfolio_id: str, symbols: list[str],
+                              risk_level: str = "moderate") -> dict[str, Any]:
         """
         Comprehensive portfolio analysis and monitoring
         """
@@ -76,8 +76,8 @@ class PortfolioTracker:
             raise
     
     async def _create_new_portfolio_analysis(self, portfolio_id: str, 
-                                           symbols: List[str], 
-                                           risk_level: str) -> Dict[str, Any]:
+                                           symbols: list[str], 
+                                           risk_level: str) -> dict[str, Any]:
         """Create analysis for a new portfolio"""
         try:
             # Initialize equal weights for new portfolio
@@ -134,8 +134,8 @@ class PortfolioTracker:
             logger.error(f"Failed to create new portfolio analysis: {e}")
             raise
     
-    async def _update_existing_portfolio(self, existing_portfolio: Dict[str, Any],
-                                       symbols: List[str], risk_level: str) -> Dict[str, Any]:
+    async def _update_existing_portfolio(self, existing_portfolio: dict[str, Any],
+                                       symbols: list[str], risk_level: str) -> dict[str, Any]:
         """Update analysis for existing portfolio"""
         try:
             portfolio_id = existing_portfolio.get('portfolio_id', '')
@@ -226,9 +226,9 @@ class PortfolioTracker:
             raise
     
     async def _calculate_portfolio_metrics(self, portfolio_id: str, 
-                                         positions: List[PortfolioPosition],
+                                         positions: list[PortfolioPosition],
                                          total_value: float, 
-                                         risk_level: str) -> Dict[str, Any]:
+                                         risk_level: str) -> dict[str, Any]:
         """Calculate comprehensive portfolio metrics"""
         try:
             # Basic portfolio metrics
@@ -272,7 +272,7 @@ class PortfolioTracker:
             logger.error(f"Failed to calculate portfolio metrics: {e}")
             raise
     
-    async def _calculate_correlation_matrix(self, positions: List[PortfolioPosition]) -> Optional[Dict[str, Dict[str, float]]]:
+    async def _calculate_correlation_matrix(self, positions: list[PortfolioPosition]) -> dict[str, dict[str, float | None]]:
         """Calculate correlation matrix between positions"""
         try:
             if len(positions) < 2:
@@ -335,7 +335,7 @@ class PortfolioTracker:
         except Exception:
             return 0.5  # Default correlation
     
-    async def _calculate_diversification_score(self, positions: List[PortfolioPosition]) -> float:
+    async def _calculate_diversification_score(self, positions: list[PortfolioPosition]) -> float:
         """Calculate portfolio diversification score"""
         try:
             if len(positions) <= 1:
@@ -361,8 +361,8 @@ class PortfolioTracker:
         except Exception:
             return 50.0  # Default moderate diversification
     
-    async def _calculate_risk_metrics(self, positions: List[PortfolioPosition], 
-                                    risk_level: str) -> Dict[str, Any]:
+    async def _calculate_risk_metrics(self, positions: list[PortfolioPosition], 
+                                    risk_level: str) -> dict[str, Any]:
         """Calculate portfolio risk metrics"""
         try:
             total_value = sum(pos.position_value for pos in positions)
@@ -406,10 +406,10 @@ class PortfolioTracker:
             logger.error(f"Risk metrics calculation failed: {e}")
             return {'error': str(e)}
     
-    async def _generate_portfolio_recommendations(self, positions: List[PortfolioPosition],
+    async def _generate_portfolio_recommendations(self, positions: list[PortfolioPosition],
                                                 diversification_score: float,
-                                                risk_metrics: Dict[str, Any],
-                                                correlation_matrix: Optional[Dict[str, Dict[str, float]]]) -> List[str]:
+                                                risk_metrics: dict[str, Any],
+                                                correlation_matrix: dict[str, dict[str, float | None]]) -> list[str]:
         """Generate portfolio optimization recommendations"""
         recommendations = []
         
@@ -488,9 +488,9 @@ class PortfolioTracker:
             logger.error(f"Failed to generate recommendations: {e}")
             return ["Error generating recommendations. Please review manually."]
     
-    def _generate_portfolio_alerts(self, positions: List[PortfolioPosition],
-                                  risk_metrics: Dict[str, Any],
-                                  total_pnl_percent: float) -> List[str]:
+    def _generate_portfolio_alerts(self, positions: list[PortfolioPosition],
+                                  risk_metrics: dict[str, Any],
+                                  total_pnl_percent: float) -> list[str]:
         """Generate portfolio alerts"""
         alerts = []
         
@@ -527,7 +527,7 @@ class PortfolioTracker:
             logger.error(f"Failed to generate alerts: {e}")
             return ["Error generating alerts"]
     
-    async def _enhance_portfolio_analysis(self, portfolio_analysis: Dict[str, Any]) -> Dict[str, Any]:
+    async def _enhance_portfolio_analysis(self, portfolio_analysis: dict[str, Any]) -> dict[str, Any]:
         """Add enhanced analysis features"""
         try:
             # Add benchmark comparison
@@ -555,7 +555,7 @@ class PortfolioTracker:
             logger.error(f"Portfolio enhancement failed: {e}")
             return portfolio_analysis
     
-    async def _compare_to_benchmark(self, portfolio_analysis: Dict[str, Any]) -> Dict[str, Any]:
+    async def _compare_to_benchmark(self, portfolio_analysis: dict[str, Any]) -> dict[str, Any]:
         """Compare portfolio performance to benchmark"""
         try:
             portfolio_return = portfolio_analysis.get('total_pnl_percent', 0)
@@ -583,7 +583,7 @@ class PortfolioTracker:
         except Exception as e:
             return {'error': str(e)}
     
-    async def _analyze_sector_allocation(self, portfolio_analysis: Dict[str, Any]) -> Dict[str, Any]:
+    async def _analyze_sector_allocation(self, portfolio_analysis: dict[str, Any]) -> dict[str, Any]:
         """Analyze portfolio allocation by sectors"""
         try:
             positions = portfolio_analysis.get('positions', [])
@@ -632,7 +632,7 @@ class PortfolioTracker:
         except Exception as e:
             return {'error': str(e)}
     
-    async def _calculate_performance_attribution(self, portfolio_analysis: Dict[str, Any]) -> Dict[str, Any]:
+    async def _calculate_performance_attribution(self, portfolio_analysis: dict[str, Any]) -> dict[str, Any]:
         """Calculate performance attribution by position"""
         try:
             positions = portfolio_analysis.get('positions', [])

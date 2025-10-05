@@ -8,7 +8,7 @@ import aiohttp
 import json
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any, Union
+from typing import Any
 import re
 from dataclasses import asdict
 
@@ -57,9 +57,9 @@ class AlertManager:
         
     async def create_alert(self, alert_type: str, symbol: str, 
                           condition: str, phone_number: str,
-                          message_template: Optional[str] = None,
+                          message_template: str | None = None,
                           cooldown_minutes: int = 60,
-                          expires_hours: int = 24) -> Dict[str, Any]:
+                          expires_hours: int = 24) -> dict[str, Any]:
         """Create a new trading alert"""
         try:
             # Validate inputs
@@ -116,9 +116,9 @@ class AlertManager:
             ))
             raise
     
-    async def list_alerts(self, phone_number: Optional[str] = None,
-                         symbol: Optional[str] = None,
-                         status: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def list_alerts(self, phone_number: str | None = None,
+                         symbol: str | None = None,
+                         status: str | None = None) -> list[dict[str, Any]]:
         """List alerts with optional filtering"""
         try:
             # Get alerts from database
@@ -145,7 +145,7 @@ class AlertManager:
             logger.error(f"Failed to list alerts: {e}")
             return []
     
-    async def delete_alert(self, alert_id: str) -> Dict[str, Any]:
+    async def delete_alert(self, alert_id: str) -> dict[str, Any]:
         """Delete/disable an alert"""
         try:
             success = await self.db_manager.update_alert_status(
@@ -175,7 +175,7 @@ class AlertManager:
             logger.error(f"Failed to delete alert {alert_id}: {e}")
             raise
     
-    async def check_alert_conditions(self, analysis: Union[EnhancedAnalysisResult, Dict[str, Any]]):
+    async def check_alert_conditions(self, analysis: EnhancedAnalysisResult | dict[str, Any]):
         """Check all active alerts against current analysis"""
         try:
             # Convert analysis to dict if needed
@@ -234,7 +234,7 @@ class AlertManager:
             return []
     
     async def _evaluate_alert_condition(self, alert: Alert, 
-                                      analysis: Dict[str, Any]) -> bool:
+                                      analysis: dict[str, Any]) -> bool:
         """Evaluate if alert condition is met"""
         try:
             alert_type = alert.alert_type.value
@@ -253,7 +253,7 @@ class AlertManager:
             return False
     
     async def _evaluate_price_condition(self, condition: str, 
-                                      analysis: Dict[str, Any]) -> bool:
+                                      analysis: dict[str, Any]) -> bool:
         """Evaluate price-based conditions"""
         try:
             # Parse condition like "price > 50000" or "price <= 45000"
@@ -293,7 +293,7 @@ class AlertManager:
             return False
     
     async def _evaluate_rsi_condition(self, condition: str, 
-                                    analysis: Dict[str, Any]) -> bool:
+                                    analysis: dict[str, Any]) -> bool:
         """Evaluate RSI-based conditions"""
         try:
             # Parse condition like "rsi < 30" or "rsi > 70"
@@ -328,7 +328,7 @@ class AlertManager:
             return False
     
     async def _evaluate_volume_condition(self, condition: str, 
-                                       analysis: Dict[str, Any]) -> bool:
+                                       analysis: dict[str, Any]) -> bool:
         """Evaluate volume-based conditions"""
         try:
             # Parse condition like "volume_spike > 200%" or "volume > 1000000"
@@ -375,7 +375,7 @@ class AlertManager:
             return False
     
     async def _evaluate_technical_condition(self, condition: str, 
-                                          analysis: Dict[str, Any]) -> bool:
+                                          analysis: dict[str, Any]) -> bool:
         """Evaluate technical indicator conditions"""
         try:
             condition_lower = condition.lower()
@@ -428,7 +428,7 @@ class AlertManager:
             logger.error(f"Technical condition evaluation error: {e}")
             return False
     
-    async def _send_alert_notification(self, alert: Alert, analysis: Dict[str, Any]):
+    async def _send_alert_notification(self, alert: Alert, analysis: dict[str, Any]):
         """Send WhatsApp notification for triggered alert"""
         try:
             # Generate message
@@ -458,7 +458,7 @@ class AlertManager:
         except Exception as e:
             logger.error(f"Failed to send alert notification: {e}")
     
-    def _generate_alert_message(self, alert: Alert, analysis: Dict[str, Any]) -> str:
+    def _generate_alert_message(self, alert: Alert, analysis: dict[str, Any]) -> str:
         """Generate formatted alert message"""
         try:
             # Use custom template if provided
@@ -613,7 +613,7 @@ class AlertManager:
         except Exception as e:
             logger.error(f"Rate limit update error: {e}")
     
-    def _extract_current_price(self, analysis: Dict[str, Any]) -> Optional[float]:
+    def _extract_current_price(self, analysis: dict[str, Any]) -> float | None:
         """Extract current price from analysis"""
         try:
             # Try multiple sources
@@ -631,7 +631,7 @@ class AlertManager:
         except Exception:
             return None
     
-    def _extract_current_volume(self, analysis: Dict[str, Any]) -> Optional[float]:
+    def _extract_current_volume(self, analysis: dict[str, Any]) -> float | None:
         """Extract current volume from analysis"""
         try:
             metadata = analysis.get('metadata', {})
@@ -640,7 +640,7 @@ class AlertManager:
         except Exception:
             return None
     
-    def _extract_volume_change(self, analysis: Dict[str, Any]) -> Optional[float]:
+    def _extract_volume_change(self, analysis: dict[str, Any]) -> float | None:
         """Extract volume change percentage from analysis"""
         try:
             metadata = analysis.get('metadata', {})
@@ -648,7 +648,7 @@ class AlertManager:
         except Exception:
             return None
     
-    def _extract_rsi_value(self, analysis: Dict[str, Any]) -> Optional[float]:
+    def _extract_rsi_value(self, analysis: dict[str, Any]) -> float | None:
         """Extract RSI value from analysis"""
         try:
             rsi_divergence = analysis.get('rsi_divergence', [])
@@ -658,7 +658,7 @@ class AlertManager:
         except Exception:
             return None
     
-    def _extract_signal_description(self, analysis: Dict[str, Any]) -> str:
+    def _extract_signal_description(self, analysis: dict[str, Any]) -> str:
         """Extract signal description from analysis"""
         try:
             recommendation = analysis.get('recommendation', {})

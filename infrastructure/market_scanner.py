@@ -6,7 +6,7 @@ Advanced scanning for breakouts, reversals, institutional moves, and volume surg
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 import numpy as np
 from dataclasses import asdict
 
@@ -129,7 +129,7 @@ class MarketScanner:
     
     async def scan_for_opportunities(self, market_cap_range: str = "all",
                                    confidence_threshold: float = 70,
-                                   max_results: int = 10) -> List[TradingOpportunity]:
+                                   max_results: int = 10) -> list[TradingOpportunity]:
         """
         Scan for high-confidence trading opportunities with filters
         """
@@ -157,7 +157,7 @@ class MarketScanner:
             return []
     
     async def _scan_symbol(self, symbol: str, scan_type: str, timeframe: str,
-                          min_volume_usd: float) -> Optional[List[TradingOpportunity]]:
+                          min_volume_usd: float) -> list[TradingOpportunity | None]:
         """
         Scan individual symbol for opportunities
         """
@@ -201,7 +201,7 @@ class MarketScanner:
             logger.error(f"Symbol scan failed for {symbol}: {e}")
             return None
     
-    async def _detect_breakout_opportunities(self, analysis) -> List[TradingOpportunity]:
+    async def _detect_breakout_opportunities(self, analysis) -> list[TradingOpportunity]:
         """Detect breakout trading opportunities"""
         opportunities = []
         
@@ -260,7 +260,7 @@ class MarketScanner:
             logger.error(f"Breakout detection failed: {e}")
             return []
     
-    async def _detect_reversal_opportunities(self, analysis) -> List[TradingOpportunity]:
+    async def _detect_reversal_opportunities(self, analysis) -> list[TradingOpportunity]:
         """Detect reversal trading opportunities"""
         opportunities = []
         
@@ -333,7 +333,7 @@ class MarketScanner:
             logger.error(f"Reversal detection failed: {e}")
             return []
     
-    async def _detect_institutional_opportunities(self, analysis) -> List[TradingOpportunity]:
+    async def _detect_institutional_opportunities(self, analysis) -> list[TradingOpportunity]:
         """Detect institutional trading opportunities"""
         opportunities = []
         
@@ -393,7 +393,7 @@ class MarketScanner:
             logger.error(f"Institutional detection failed: {e}")
             return []
     
-    async def _detect_volume_surge_opportunities(self, analysis) -> List[TradingOpportunity]:
+    async def _detect_volume_surge_opportunities(self, analysis) -> list[TradingOpportunity]:
         """Detect volume surge opportunities"""
         opportunities = []
         
@@ -599,7 +599,7 @@ class MarketScanner:
         except Exception:
             return 50  # Default confidence
     
-    async def _get_current_market_conditions(self) -> Dict[str, Any]:
+    async def _get_current_market_conditions(self) -> dict[str, Any]:
         """Get current market conditions for context"""
         try:
             # Get BTC and ETH analysis for market sentiment

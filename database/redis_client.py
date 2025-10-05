@@ -7,7 +7,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 import redis.asyncio as redis
 import os
 
@@ -23,7 +23,7 @@ class RedisClient:
             "redis://:password@redis:6379"
         )
         
-        self.client: Optional[redis.Redis] = None
+        self.client: redis.Redis | None = None
         
         # Cache configuration
         self.default_ttl = int(os.getenv("REDIS_DEFAULT_TTL", 300))  # 5 minutes
@@ -60,7 +60,7 @@ class RedisClient:
             logger.info("Redis connection closed")
     
     # Analysis Caching Methods
-    async def cache_analysis(self, cache_key: str, analysis_data: Dict[str, Any], ttl: Optional[int] = None) -> bool:
+    async def cache_analysis(self, cache_key: str, analysis_data: dict[str, Any], ttl: int | None = None) -> bool:
         """Cache cryptocurrency analysis with intelligent key structure"""
         try:
             if not self.client:
@@ -89,7 +89,7 @@ class RedisClient:
             logger.error(f"Failed to cache analysis: {e}")
             return False
     
-    async def get_analysis(self, cache_key: str) -> Optional[Dict[str, Any]]:
+    async def get_analysis(self, cache_key: str) -> dict[str, Any | None]:
         """Retrieve cached analysis with automatic deserialization"""
         try:
             if not self.client:
@@ -110,7 +110,7 @@ class RedisClient:
             return None
     
     # Market Data Caching
-    async def cache_market_data(self, symbol: str, market_data: Dict[str, Any], ttl: Optional[int] = None) -> bool:
+    async def cache_market_data(self, symbol: str, market_data: dict[str, Any], ttl: int | None = None) -> bool:
         """Cache real-time market data with high-frequency updates"""
         try:
             if not self.client:
@@ -141,7 +141,7 @@ class RedisClient:
             logger.error(f"Failed to cache market data: {e}")
             return False
     
-    async def get_market_data(self, symbol: str) -> Optional[Dict[str, Any]]:
+    async def get_market_data(self, symbol: str) -> dict[str, Any | None]:
         """Retrieve cached market data"""
         try:
             if not self.client:
@@ -166,7 +166,7 @@ class RedisClient:
             return None
     
     # Real-time Streaming and Alerts
-    async def cache_opportunity(self, opportunity: Dict[str, Any], ttl: Optional[int] = None) -> bool:
+    async def cache_opportunity(self, opportunity: dict[str, Any], ttl: int | None = None) -> bool:
         """Cache trading opportunity with scoring"""
         try:
             if not self.client:
@@ -197,7 +197,7 @@ class RedisClient:
             logger.error(f"Failed to cache opportunity: {e}")
             return False
     
-    async def get_top_opportunities(self, limit: int = 10) -> List[Dict[str, Any]]:
+    async def get_top_opportunities(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get top-ranked trading opportunities"""
         try:
             if not self.client:
@@ -226,7 +226,7 @@ class RedisClient:
             return []
     
     # Session and State Management
-    async def store_portfolio_state(self, portfolio_id: str, state: Dict[str, Any], ttl: Optional[int] = None) -> bool:
+    async def store_portfolio_state(self, portfolio_id: str, state: dict[str, Any], ttl: int | None = None) -> bool:
         """Store portfolio state for session management"""
         try:
             if not self.client:
@@ -246,7 +246,7 @@ class RedisClient:
             logger.error(f"Failed to store portfolio state: {e}")
             return False
     
-    async def get_portfolio_state(self, portfolio_id: str) -> Optional[Dict[str, Any]]:
+    async def get_portfolio_state(self, portfolio_id: str) -> dict[str, Any | None]:
         """Retrieve portfolio state"""
         try:
             if not self.client:
@@ -264,7 +264,7 @@ class RedisClient:
             return None
     
     # Alert and Notification Queuing
-    async def queue_alert(self, alert: Dict[str, Any]) -> bool:
+    async def queue_alert(self, alert: dict[str, Any]) -> bool:
         """Queue alert for processing"""
         try:
             if not self.client:
@@ -292,7 +292,7 @@ class RedisClient:
             logger.error(f"Failed to queue alert: {e}")
             return False
     
-    async def process_alert_queue(self, max_alerts: int = 10) -> List[Dict[str, Any]]:
+    async def process_alert_queue(self, max_alerts: int = 10) -> list[dict[str, Any]]:
         """Process queued alerts"""
         try:
             if not self.client:
@@ -331,7 +331,7 @@ class RedisClient:
             logger.error(f"Failed to check rate limit: {e}")
             return True  # Allow on error to prevent blocking
     
-    async def get_rate_limit_status(self, key: str) -> Dict[str, Any]:
+    async def get_rate_limit_status(self, key: str) -> dict[str, Any]:
         """Get current rate limit status"""
         try:
             if not self.client:
@@ -350,7 +350,7 @@ class RedisClient:
             return {"current_count": 0, "remaining_time": 0}
     
     # Market Scanning Cache
-    async def cache_scan_results(self, scan_type: str, results: List[Dict[str, Any]], ttl: Optional[int] = None) -> bool:
+    async def cache_scan_results(self, scan_type: str, results: list[dict[str, Any]], ttl: int | None = None) -> bool:
         """Cache market scan results"""
         try:
             if not self.client:
@@ -377,7 +377,7 @@ class RedisClient:
             logger.error(f"Failed to cache scan results: {e}")
             return False
     
-    async def get_latest_scan_results(self, scan_type: str) -> Optional[List[Dict[str, Any]]]:
+    async def get_latest_scan_results(self, scan_type: str) -> list[dict[str, Any | None]]:
         """Get latest scan results"""
         try:
             if not self.client:
@@ -395,7 +395,7 @@ class RedisClient:
             return None
     
     # Performance Metrics
-    async def track_performance_metric(self, metric_name: str, value: float, timestamp: Optional[datetime] = None):
+    async def track_performance_metric(self, metric_name: str, value: float, timestamp: datetime | None = None):
         """Track performance metrics in time series"""
         try:
             if not self.client:
@@ -417,7 +417,7 @@ class RedisClient:
         except Exception as e:
             logger.error(f"Failed to track performance metric: {e}")
     
-    async def get_performance_metrics(self, metric_name: str, hours_back: int = 24) -> List[Dict[str, Any]]:
+    async def get_performance_metrics(self, metric_name: str, hours_back: int = 24) -> list[dict[str, Any]]:
         """Get performance metrics for specified time range"""
         try:
             if not self.client:
@@ -465,7 +465,7 @@ class RedisClient:
         except Exception as e:
             logger.error(f"Failed to update price history: {e}")
     
-    async def get_price_history(self, symbol: str, limit: int = 50) -> List[Dict[str, Any]]:
+    async def get_price_history(self, symbol: str, limit: int = 50) -> list[dict[str, Any]]:
         """Get recent price history"""
         try:
             if not self.client:
@@ -509,7 +509,7 @@ class RedisClient:
             logger.error(f"Failed to clear cache pattern: {e}")
             return 0
     
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform Redis health check"""
         try:
             if not self.client:

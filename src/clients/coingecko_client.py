@@ -1,6 +1,9 @@
 import aiohttp
+import logging
 import os
 from typing import Dict, Any
+
+logger = logging.getLogger(__name__)
 
 class CoinGeckoClient:
     def __init__(self):
@@ -13,7 +16,7 @@ class CoinGeckoClient:
         self.pro_limit = 1000  # calls per minute for pro users
         self.session_timeout = 30  # Connection timeout
         
-    async def _make_request(self, endpoint: str, params: Dict[str, Any] = None) -> Dict:
+    async def _make_request(self, endpoint: str, params: dict[str, Any] = None) -> Dict:
         """Make request to CoinGecko API"""
         url = f"{self.base_url}{endpoint}"
         headers = {}
@@ -49,7 +52,7 @@ class CoinGeckoClient:
                 "price_change_24h": market_data.get("price_change_percentage_24h", 0)
             }
         except Exception as e:
-            print(f"Error fetching CoinGecko data: {e}")
+            logger.error(f"Error fetching CoinGecko data: {e}")
             return {}
     
     def _symbol_to_coin_id(self, symbol: str) -> str:

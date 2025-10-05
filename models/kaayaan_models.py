@@ -4,19 +4,22 @@ Enhanced data models for production MCP deployment
 """
 
 from pydantic import BaseModel, Field, validator
-from typing import List, Optional, Dict, Any, Union
+from typing import Any
 from datetime import datetime, timezone
 from enum import Enum
 import uuid
 
 # Import existing models from legacy folder
 import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'legacy'))
-from response_models import (
-    MarketAnalysis, VolatilityIndicators, OrderBlock, FairValueGap,
-    BreakOfStructure, ChangeOfCharacter, LiquidityZone, AnchoredVWAP,
-    RSIDivergence, Recommendation, ComparativeAnalysis, CryptoAnalysisResponse
+# Import response models from technical_indicators where they're defined
+from src.core.technical_indicators import (
+    OrderBlock, FairValueGap, BreakOfStructure, ChangeOfCharacter,
+    LiquidityZone, AnchoredVWAP, RSIDivergence
+)
+# Import additional models from crypto_analyzer
+from src.core.crypto_analyzer import (
+    MarketAnalysis, VolatilityIndicators, Recommendation,
+    ComparativeAnalysis, CryptoAnalysisResponse
 )
 
 class AlertType(str, Enum):
@@ -59,23 +62,23 @@ class EnhancedAnalysisResult(BaseModel):
     timeframe: str
     market_analysis: MarketAnalysis
     volatility_indicators: VolatilityIndicators
-    order_blocks: List[OrderBlock]
-    fair_value_gaps: List[FairValueGap]
-    break_of_structure: List[BreakOfStructure]
-    change_of_character: List[ChangeOfCharacter]
-    liquidity_zones: List[LiquidityZone]
-    anchored_vwap: List[AnchoredVWAP]
-    rsi_divergence: List[RSIDivergence]
+    order_blocks: list[OrderBlock]
+    fair_value_gaps: list[FairValueGap]
+    break_of_structure: list[BreakOfStructure]
+    change_of_character: list[ChangeOfCharacter]
+    liquidity_zones: list[LiquidityZone]
+    anchored_vwap: list[AnchoredVWAP]
+    rsi_divergence: list[RSIDivergence]
     recommendation: Recommendation
-    comparative_analysis: Optional[ComparativeAnalysis] = None
-    metadata: Dict[str, Any]
+    comparative_analysis: ComparativeAnalysis | None = None
+    metadata: dict[str, Any]
     
     # Enhanced features
-    market_context: Dict[str, Any] = Field(default_factory=dict)
+    market_context: dict[str, Any] = Field(default_factory=dict)
     intelligent_score: float = Field(ge=0, le=100, description="Intelligent confidence score 0-100")
     regime_analysis: MarketRegime = MarketRegime.UNKNOWN
-    risk_adjusted_recommendation: Optional[str] = None
-    position_sizing_suggestion: Optional[Dict[str, Any]] = None
+    risk_adjusted_recommendation: str | None = None
+    position_sizing_suggestion: dict[str, Any | None] = None
     
     @validator('intelligent_score')
     def validate_score(cls, v: float) -> float:
@@ -100,12 +103,12 @@ class PortfolioAnalysis(BaseModel):
     total_value: float
     total_pnl: float
     total_pnl_percent: float
-    positions: List[PortfolioPosition]
-    risk_metrics: Dict[str, Any]
+    positions: list[PortfolioPosition]
+    risk_metrics: dict[str, Any]
     diversification_score: float = Field(ge=0, le=100)
-    correlation_matrix: Optional[Dict[str, Dict[str, float]]] = None
-    recommendations: List[str] = Field(default_factory=list)
-    alerts: List[str] = Field(default_factory=list)
+    correlation_matrix: dict[str, dict[str, float | None]] = None
+    recommendations: list[str] = Field(default_factory=list)
+    alerts: list[str] = Field(default_factory=list)
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class TradingOpportunity(BaseModel):
@@ -120,9 +123,9 @@ class TradingOpportunity(BaseModel):
     risk_reward_ratio: float
     timeframe: str
     rationale: str
-    supporting_indicators: List[str]
-    market_context: Dict[str, Any] = Field(default_factory=dict)
-    expires_at: Optional[datetime] = None
+    supporting_indicators: list[str]
+    market_context: dict[str, Any] = Field(default_factory=dict)
+    expires_at: datetime | None = None
     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     @validator('risk_reward_ratio')
@@ -142,7 +145,7 @@ class RiskAssessment(BaseModel):
     position_size: float = 0.0
     position_value: float = 0.0
     max_loss: float = 0.0
-    risk_reward_ratio: Optional[float] = None
+    risk_reward_ratio: float | None = None
     
     # Advanced risk metrics
     volatility_adjusted_size: float = 0.0
@@ -150,7 +153,7 @@ class RiskAssessment(BaseModel):
     correlation_risk: float = 0.0
     
     # Risk warnings
-    warnings: List[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
     risk_level: RiskLevel = RiskLevel.MODERATE
     
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -162,8 +165,8 @@ class MarketScanResult(BaseModel):
     timeframe: str
     symbols_scanned: int
     opportunities_found: int
-    opportunities: List[TradingOpportunity]
-    market_conditions: Dict[str, Any] = Field(default_factory=dict)
+    opportunities: list[TradingOpportunity]
+    market_conditions: dict[str, Any] = Field(default_factory=dict)
     scan_duration_seconds: float = 0.0
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -175,14 +178,14 @@ class Alert(BaseModel):
     condition: str  # "price > 50000", "rsi < 30", etc.
     phone_number: str
     status: AlertStatus = AlertStatus.ACTIVE
-    message_template: Optional[str] = None
+    message_template: str | None = None
     cooldown_minutes: int = 60  # Prevent spam
     
     # Metadata
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_triggered: Optional[datetime] = None
+    last_triggered: datetime | None = None
     trigger_count: int = 0
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
 
 class BacktestResult(BaseModel):
     """Historical backtesting results"""
@@ -211,8 +214,8 @@ class BacktestResult(BaseModel):
     worst_trade: float = 0.0
     
     # Detailed results
-    trades: List[Dict[str, Any]] = Field(default_factory=list)
-    equity_curve: List[Dict[str, Any]] = Field(default_factory=list)
+    trades: list[dict[str, Any]] = Field(default_factory=list)
+    equity_curve: list[dict[str, Any]] = Field(default_factory=list)
     
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -235,7 +238,7 @@ class InfrastructureHealth(BaseModel):
     postgres_status: str = "unknown"
     whatsapp_status: str = "unknown"
     last_check: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    errors: List[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
 
 class MarketContext(BaseModel):
     """Overall market context for intelligent decision making"""
@@ -244,8 +247,8 @@ class MarketContext(BaseModel):
     btc_trend: str
     eth_trend: str
     overall_volatility: str
-    vix_equivalent: Optional[float] = None
-    fear_greed_index: Optional[int] = None
+    vix_equivalent: float | None = None
+    fear_greed_index: int | None = None
     market_regime: MarketRegime = MarketRegime.UNKNOWN
     
     # Cache control
@@ -259,28 +262,28 @@ class TradingSignal(BaseModel):
     strength: float = Field(ge=0, le=100)
     timeframe: str
     entry_price: float
-    target_prices: List[float] = Field(default_factory=list)
+    target_prices: list[float] = Field(default_factory=list)
     stop_loss: float
     rationale: str
-    indicators_used: List[str] = Field(default_factory=list)
+    indicators_used: list[str] = Field(default_factory=list)
     risk_level: RiskLevel = RiskLevel.MODERATE
     
     # Metadata
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     confidence_score: float = Field(ge=0, le=100)
 
 class AuditLog(BaseModel):
     """Audit logging for all trading decisions"""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     action: str
-    symbol: Optional[str] = None
-    user_id: Optional[str] = None
-    parameters: Dict[str, Any] = Field(default_factory=dict)
-    result: Dict[str, Any] = Field(default_factory=dict)
+    symbol: str | None = None
+    user_id: str | None = None
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    result: dict[str, Any] = Field(default_factory=dict)
     execution_time_ms: float = 0.0
     success: bool = True
-    error_message: Optional[str] = None
+    error_message: str | None = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # Export all models for easy imports

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any
 from dataclasses import asdict
 import math
 
@@ -49,8 +49,8 @@ class RiskManager:
         
     async def calculate_position_sizing(self, symbol: str, portfolio_value: float,
                                       risk_percentage: float, entry_price: float,
-                                      stop_loss: float, target_price: Optional[float] = None,
-                                      portfolio_id: Optional[str] = None) -> RiskAssessment:
+                                      stop_loss: float, target_price: float | None = None,
+                                      portfolio_id: str | None = None) -> RiskAssessment:
         """
         Calculate intelligent position sizing using multiple methodologies
         """
@@ -170,7 +170,7 @@ class RiskManager:
             raise
     
     async def _calculate_volatility_adjusted_size(self, symbol: str, base_size: float,
-                                                analysis: Optional[Dict[str, Any]]) -> float:
+                                                analysis: dict[str, Any | None]) -> float:
         """Calculate volatility-adjusted position size"""
         try:
             if not analysis:
@@ -212,8 +212,8 @@ class RiskManager:
             return base_size
     
     async def _calculate_kelly_position_size(self, symbol: str, entry_price: float,
-                                           stop_loss: float, target_price: Optional[float],
-                                           analysis: Optional[Dict[str, Any]]) -> float:
+                                           stop_loss: float, target_price: float | None,
+                                           analysis: dict[str, Any | None]) -> float:
         """Calculate Kelly Criterion position size"""
         try:
             if not analysis or not target_price:
@@ -338,7 +338,7 @@ class RiskManager:
         except Exception:
             return 0.5  # Default moderate correlation
     
-    def _get_regime_risk_adjustment(self, analysis: Optional[Dict[str, Any]]) -> float:
+    def _get_regime_risk_adjustment(self, analysis: dict[str, Any | None]) -> float:
         """Get risk adjustment factor based on market regime"""
         try:
             if not analysis:
@@ -354,7 +354,7 @@ class RiskManager:
     
     def _generate_risk_warnings(self, risk_percentage: float, position_value: float,
                                portfolio_value: float, correlation_risk: float,
-                               analysis: Optional[Dict[str, Any]]) -> List[str]:
+                               analysis: dict[str, Any | None]) -> list[str]:
         """Generate risk warnings based on position and market conditions"""
         warnings = []
         
@@ -392,7 +392,7 @@ class RiskManager:
         return warnings
     
     def _determine_risk_level(self, risk_percentage: float, correlation_risk: float,
-                             analysis: Optional[Dict[str, Any]]) -> RiskLevel:
+                             analysis: dict[str, Any | None]) -> RiskLevel:
         """Determine overall risk level for the position"""
         try:
             risk_score = 0
@@ -440,7 +440,7 @@ class RiskManager:
         except Exception:
             return RiskLevel.MODERATE
     
-    async def analyze_portfolio_risk(self, portfolio_id: str) -> Dict[str, Any]:
+    async def analyze_portfolio_risk(self, portfolio_id: str) -> dict[str, Any]:
         """Analyze overall portfolio risk metrics"""
         try:
             portfolio = await self.db_manager.get_latest_portfolio(portfolio_id)
@@ -495,7 +495,7 @@ class RiskManager:
             logger.error(f"Portfolio risk analysis failed: {e}")
             raise
     
-    def _calculate_diversification_score(self, position_risks: List[Dict[str, Any]]) -> float:
+    def _calculate_diversification_score(self, position_risks: list[dict[str, Any]]) -> float:
         """Calculate portfolio diversification score (0-100)"""
         try:
             if len(position_risks) < 2:
@@ -520,8 +520,8 @@ class RiskManager:
         except Exception:
             return 50  # Default moderate diversification
     
-    def _generate_portfolio_recommendations(self, position_risks: List[Dict[str, Any]],
-                                          total_risk: float, diversification_score: float) -> List[str]:
+    def _generate_portfolio_recommendations(self, position_risks: list[dict[str, Any]],
+                                          total_risk: float, diversification_score: float) -> list[str]:
         """Generate portfolio risk management recommendations"""
         recommendations = []
         

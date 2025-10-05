@@ -28,7 +28,7 @@ class BinanceClient:
             hashlib.sha256
         ).hexdigest()
     
-    async def _make_request(self, endpoint: str, params: Dict[str, Any] = None, signed: bool = False) -> Dict:
+    async def _make_request(self, endpoint: str, params: dict[str, Any] = None, signed: bool = False) -> Dict:
         """Make authenticated request to Binance API"""
         url = f"{self.base_url}{endpoint}"
         headers = {}
@@ -66,7 +66,7 @@ class BinanceClient:
         params = {"symbol": symbol}
         return await self._make_request("/ticker/24hr", params)
     
-    async def get_exchange_info(self) -> List[str]:
+    async def get_exchange_info(self) -> list[str]:
         """Get exchange trading rules and symbol information"""
         data = await self._make_request("/exchangeInfo")
         symbols = [s["symbol"] for s in data.get("symbols", []) if s.get("status") == "TRADING"]

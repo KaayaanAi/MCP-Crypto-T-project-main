@@ -24,7 +24,7 @@ class MongoClient:
         )
         self.database_name = os.getenv("MONGO_DB_NAME", "crypto_trading")
         
-        self.client: Optional[AsyncIOMotorClient] = None
+        self.client: AsyncIOMotorClient | None = None
         self.db = None
         
     async def connect(self):
@@ -107,7 +107,7 @@ class MongoClient:
         except Exception as e:
             logger.error(f"Failed to create indexes: {e}")
     
-    async def store_analysis(self, analysis_data: Dict[str, Any]) -> bool:
+    async def store_analysis(self, analysis_data: dict[str, Any]) -> bool:
         """Store cryptocurrency analysis with intelligent pattern detection"""
         try:
             # Ensure connection
@@ -134,7 +134,7 @@ class MongoClient:
             logger.error(f"Failed to store analysis: {e}")
             return False
     
-    async def store_opportunities(self, opportunities: List[Dict[str, Any]]) -> bool:
+    async def store_opportunities(self, opportunities: list[dict[str, Any]]) -> bool:
         """Store detected trading opportunities"""
         try:
             if not self.db:
@@ -159,7 +159,7 @@ class MongoClient:
             logger.error(f"Failed to store opportunities: {e}")
             return False
     
-    async def store_risk_assessment(self, risk_data: Dict[str, Any]) -> bool:
+    async def store_risk_assessment(self, risk_data: dict[str, Any]) -> bool:
         """Store risk assessment with portfolio context"""
         try:
             if not self.db:
@@ -178,7 +178,7 @@ class MongoClient:
             logger.error(f"Failed to store risk assessment: {e}")
             return False
     
-    async def store_backtest_result(self, backtest_data: Dict[str, Any]) -> bool:
+    async def store_backtest_result(self, backtest_data: dict[str, Any]) -> bool:
         """Store backtesting results with performance metrics"""
         try:
             if not self.db:
@@ -197,7 +197,7 @@ class MongoClient:
             logger.error(f"Failed to store backtest result: {e}")
             return False
     
-    async def store_regime_analysis(self, regime_data: Dict[str, Any]) -> bool:
+    async def store_regime_analysis(self, regime_data: dict[str, Any]) -> bool:
         """Store market regime analysis"""
         try:
             if not self.db:
@@ -216,7 +216,7 @@ class MongoClient:
             logger.error(f"Failed to store regime analysis: {e}")
             return False
     
-    async def find_similar_patterns(self, symbol: str, current_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def find_similar_patterns(self, symbol: str, current_analysis: dict[str, Any]) -> list[dict[str, Any]]:
         """Find historically similar patterns for intelligent decision making"""
         try:
             if not self.db:
@@ -274,7 +274,7 @@ class MongoClient:
             logger.error(f"Failed to find similar patterns: {e}")
             return []
     
-    async def get_portfolio_data(self, portfolio_id: str) -> Optional[Dict[str, Any]]:
+    async def get_portfolio_data(self, portfolio_id: str) -> dict[str, Any | None]:
         """Retrieve portfolio data with historical performance"""
         try:
             if not self.db:
@@ -295,7 +295,7 @@ class MongoClient:
             logger.error(f"Failed to get portfolio data: {e}")
             return None
     
-    async def update_portfolio(self, portfolio_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_portfolio(self, portfolio_id: str, updates: dict[str, Any]) -> bool:
         """Update portfolio with change tracking"""
         try:
             if not self.db:
@@ -318,7 +318,7 @@ class MongoClient:
             logger.error(f"Failed to update portfolio: {e}")
             return False
     
-    async def store_alert(self, alert_data: Dict[str, Any]) -> Optional[str]:
+    async def store_alert(self, alert_data: dict[str, Any]) -> str | None:
         """Store trading alert with conditions"""
         try:
             if not self.db:
@@ -340,7 +340,7 @@ class MongoClient:
             logger.error(f"Failed to store alert: {e}")
             return None
     
-    async def get_active_alerts(self, symbol: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def get_active_alerts(self, symbol: str | None = None) -> list[dict[str, Any]]:
         """Get active alerts for monitoring"""
         try:
             if not self.db:
@@ -359,7 +359,7 @@ class MongoClient:
             logger.error(f"Failed to get active alerts: {e}")
             return []
     
-    async def update_alert_status(self, alert_id: str, status_updates: Dict[str, Any]) -> bool:
+    async def update_alert_status(self, alert_id: str, status_updates: dict[str, Any]) -> bool:
         """Update alert status and trigger count"""
         try:
             if not self.db:
@@ -378,7 +378,7 @@ class MongoClient:
             logger.error(f"Failed to update alert status: {e}")
             return False
     
-    async def get_market_statistics(self, timeframe: str = "24h") -> Dict[str, Any]:
+    async def get_market_statistics(self, timeframe: str = "24h") -> dict[str, Any]:
         """Get aggregated market statistics"""
         try:
             if not self.db:
@@ -428,7 +428,7 @@ class MongoClient:
             logger.error(f"Failed to get market statistics: {e}")
             return {}
     
-    async def _extract_market_conditions(self, analysis_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _extract_market_conditions(self, analysis_data: dict[str, Any]) -> dict[str, Any]:
         """Extract market conditions for intelligent analysis"""
         return {
             "trend": analysis_data.get("market_analysis", {}).get("trend"),
@@ -437,7 +437,7 @@ class MongoClient:
             "institutional_activity": len(analysis_data.get("order_blocks", [])) > 0
         }
     
-    async def _extract_and_store_patterns(self, analysis_data: Dict[str, Any]):
+    async def _extract_and_store_patterns(self, analysis_data: dict[str, Any]):
         """Extract and store patterns for similarity matching"""
         try:
             pattern_features = self._extract_pattern_features(analysis_data)
@@ -458,7 +458,7 @@ class MongoClient:
         except Exception as e:
             logger.error(f"Failed to extract and store patterns: {e}")
     
-    def _extract_pattern_features(self, analysis_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_pattern_features(self, analysis_data: dict[str, Any]) -> dict[str, Any]:
         """Extract pattern features for similarity matching"""
         market_analysis = analysis_data.get("market_analysis", {})
         
@@ -485,7 +485,7 @@ class MongoClient:
             "volume_profile": analysis_data.get("metadata", {}).get("volume_24h", 0)
         }
     
-    async def _get_portfolio_history(self, portfolio_id: str) -> List[Dict[str, Any]]:
+    async def _get_portfolio_history(self, portfolio_id: str) -> list[dict[str, Any]]:
         """Get portfolio historical performance data"""
         try:
             cursor = self.db.portfolio_history.find(
@@ -499,7 +499,7 @@ class MongoClient:
             logger.error(f"Failed to get portfolio history: {e}")
             return []
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform MongoDB health check"""
         try:
             if not self.client:

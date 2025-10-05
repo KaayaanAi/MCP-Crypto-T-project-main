@@ -9,8 +9,8 @@ import asyncio
 import json
 import logging
 import time
-from typing import Any, Dict
 from datetime import datetime, timezone
+from typing import Any
 
 try:
     from fastapi import FastAPI, Request, HTTPException
@@ -18,8 +18,9 @@ try:
     from fastapi.responses import JSONResponse
     import uvicorn
 except ImportError:
-    print("FastAPI not installed. Run: pip install fastapi uvicorn")
-    exit(1)
+    import sys
+    sys.stderr.write("FastAPI not installed. Run: pip install fastapi uvicorn\n")
+    sys.exit(1)
 
 # Import our standalone MCP server
 from mcp_server_standalone import MCPCryptoServer
@@ -43,7 +44,7 @@ class MCPHTTPWrapper:
             self.initialized = True
             logger.info("MCP server initialized for HTTP transport")
 
-    async def handle_mcp_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_mcp_request(self, request_data: dict[str, Any]) -> dict[str, Any]:
         """Handle MCP JSON-RPC request"""
 
         if not self.initialized:
@@ -271,7 +272,7 @@ async def metrics():
             "tools_available": 7
         },
         "infrastructure_status": {
-            "mock_mode": True,
+            "mock_mode": not mcp_wrapper.mcp_server._use_real_infrastructure if mcp_wrapper.initialized else True,
             "database_connected": mcp_wrapper.initialized,
             "cache_enabled": True
         },
@@ -303,11 +304,10 @@ async def root():
 async def main():
     """Run the HTTP server"""
 
-    print("🚀 Starting MCP Crypto Trading HTTP Server")
-    print("📡 HTTP endpoint: http://localhost:4008/mcp")
-    print("💊 Health check: http://localhost:4008/health")
-    print("📚 Documentation: http://localhost:4008/docs")
-    print()
+    logger.info("Starting MCP Crypto Trading HTTP Server")
+    logger.info("HTTP endpoint: http://localhost:4008/mcp")
+    logger.info("Health check: http://localhost:4008/health")
+    logger.info("Documentation: http://localhost:4008/docs")
 
     # Run server
     config = uvicorn.Config(

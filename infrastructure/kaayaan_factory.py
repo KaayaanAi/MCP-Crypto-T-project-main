@@ -5,7 +5,7 @@ Creates and configures all infrastructure components with Kaayaan production cre
 
 import asyncio
 import logging
-from typing import Tuple, Optional
+from typing import Tuple
 import motor.motor_asyncio as motor
 import redis.asyncio as redis
 import asyncpg
@@ -58,10 +58,10 @@ class KaayaanInfrastructureFactory:
         }
     
     def __init__(self):
-        self._mongodb_client: Optional[motor.AsyncIOMotorClient] = None
-        self._redis_client: Optional[redis.Redis] = None
-        self._postgres_pool: Optional[asyncpg.Pool] = None
-        self._http_session: Optional[aiohttp.ClientSession] = None
+        self._mongodb_client: motor.AsyncIOMotorClient | None = None
+        self._redis_client: redis.Redis | None = None
+        self._postgres_pool: asyncpg.Pool | None = None
+        self._http_session: aiohttp.ClientSession | None = None
         self._initialized = False
         
     async def initialize(self) -> bool:
@@ -306,7 +306,7 @@ class KaayaanInfrastructureFactory:
         logger.info("✅ Backtester created")
         return backtester
     
-    async def create_full_infrastructure(self) -> Tuple[DatabaseManager, AlertManager, RiskManager, 
+    async def create_full_infrastructure(self) -> tuple[DatabaseManager, AlertManager, RiskManager, 
                                                      MarketScanner, PortfolioTracker, Backtester]:
         """Create all infrastructure components in correct dependency order"""
         if not self._initialized:
@@ -447,7 +447,7 @@ class KaayaanInfrastructureFactory:
         )
 
 # Convenience functions for quick setup
-async def create_kaayaan_infrastructure() -> Tuple[DatabaseManager, AlertManager, RiskManager, 
+async def create_kaayaan_infrastructure() -> tuple[DatabaseManager, AlertManager, RiskManager, 
                                                 MarketScanner, PortfolioTracker, Backtester]:
     """Convenience function to create complete Kaayaan infrastructure"""
     factory = await KaayaanInfrastructureFactory.create_for_production()

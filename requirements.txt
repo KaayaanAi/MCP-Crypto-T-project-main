@@ -1,84 +1,61 @@
 # MCP Crypto Trading Analysis - Production Requirements 2025+
-# Updated dependencies for 2025+ compatibility with security fixes
-# Last Updated: 2025-09-21 - Security and dependency fixes applied
+# Updated dependencies - Security fixes and deprecated package removal
+# Last Updated: 2025-10-05 - Murphy validation, CVE fixes, dead code removal
 
 # ======================================================================
 # CORE MCP & SERVER DEPENDENCIES (2025+ Updates)
 # ======================================================================
-mcp==1.14.1                          # Model Context Protocol - Latest stable release
-pydantic==2.8.2                      # Pydantic v2 with 10x performance improvements
-fastapi==0.112.0                     # Latest FastAPI with OpenAPI 3.1 support
-uvicorn[standard]==0.30.0            # Latest ASGI server with HTTP/2 support
-starlette==0.37.2                    # Updated ASGI framework
+mcp==1.16.0                          # Model Context Protocol - Latest stable release
+pydantic==2.11.10                    # Pydantic v2 with security fixes (CVE-2024-3772 patched)
+fastapi==0.115.7                     # Latest FastAPI (updated from 0.112.0)
+uvicorn[standard]==0.37.0            # Latest ASGI server with HTTP/2 support (updated from 0.30.0)
+starlette==0.45.3                    # Updated ASGI framework (fastapi dependency)
 
 # ======================================================================
 # ASYNC & EVENT LOOP OPTIMIZATION (2025+ Updates)
 # ======================================================================
-asyncio-mqtt==0.16.2                 # Updated MQTT async client
-uvloop==0.20.0; sys_platform != "win32"  # High-performance event loop (Unix only)
+uvloop==0.21.0; sys_platform != "win32"  # High-performance event loop (Unix only)
 aiofiles==24.1.0                     # Updated async file operations
 aiodns==3.2.0                        # Updated async DNS resolver
 
 # ======================================================================
 # CRYPTOCURRENCY & FINANCIAL DATA (2025+ Updates)
 # ======================================================================
-pandas==2.2.2                        # Latest pandas with performance improvements
+pandas==2.2.2                        # Latest pandas with NumPy 2.0 compatibility
 numpy==2.0.1                         # NumPy 2.0 with major performance gains
-ta-lib==0.4.32                       # Updated technical analysis indicators
 ccxt==4.3.77                         # Latest crypto exchange API library
-websockets==13.0.1                   # Updated WebSocket implementation
+websockets==15.0.1                   # Updated WebSocket implementation (updated from 13.0.1)
 
 # ======================================================================
 # HTTP CLIENTS & API INTEGRATION (2025+ Updates)
 # ======================================================================
 aiohttp==3.10.3                      # Latest async HTTP with security fixes
-httpx==0.27.0                        # Updated HTTP client with HTTP/3 support
+httpx>=0.27.0,<1.0.0                 # Updated HTTP client with HTTP/3 support (compatible with MCP)
 requests==2.32.3                     # Latest synchronous HTTP with security fixes
 urllib3==2.2.2                       # Updated low-level HTTP client
 
 # ======================================================================
 # DATABASE DRIVERS - KAAYAAN INFRASTRUCTURE (2025+ Updates)
 # ======================================================================
-# NOTE: Motor will be deprecated May 2026, planning migration to PyMongo Async
-motor==3.5.0                         # MongoDB async driver - Latest before deprecation
+# WARNING: Motor deprecated May 2025, EOL May 2026. Plan migration to PyMongo Async.
+motor==3.5.0                         # MongoDB async driver - DEPRECATED, migrate before May 2026
 pymongo[srv]==4.8.0                  # MongoDB sync driver with SRV support
-aioredis==2.0.1                      # Redis async client (stable)
-redis==5.0.8                         # Updated Redis sync client
+redis[asyncio]==5.0.8                # Redis with asyncio support (replaces deprecated aioredis)
 asyncpg==0.29.0                      # PostgreSQL async driver (stable)
 psycopg[binary]==3.2.1               # Modern PostgreSQL driver (psycopg3) with binary wheel
+hiredis==3.0.0                       # Latest Redis protocol parser
 
 # ======================================================================
 # CONFIGURATION & ENVIRONMENT (2025+ Updates)
 # ======================================================================
-python-dotenv==1.0.1                 # Updated environment variable management
-pydantic-settings==2.4.0             # Latest settings management
-dynaconf==3.2.6                      # Updated configuration management
-
-# ======================================================================
-# LOGGING & MONITORING (2025+ Updates)
-# ======================================================================
-structlog==24.4.0                    # Latest structured logging
-prometheus-client==0.21.0            # Updated metrics collection
-sentry-sdk[fastapi]==2.12.0          # Latest error tracking with FastAPI
-loguru==0.7.2                        # Enhanced logging (stable)
-opentelemetry-api==1.26.0            # Latest observability framework
-opentelemetry-sdk==1.26.0            # Latest OpenTelemetry SDK
-
-# ======================================================================
-# SECURITY & AUTHENTICATION (2025+ Critical Updates)
-# ======================================================================
-cryptography==43.0.0                 # Latest cryptographic utilities
-python-jose[cryptography]==3.3.0     # Fixed version with security patches
-passlib[bcrypt]==1.7.4               # Password hashing (stable)
-python-multipart==0.0.9              # Updated form data parsing
-bcrypt==4.2.0                        # Latest password hashing algorithm
+python-dotenv==1.1.1                 # Updated environment variable management (updated from 1.0.1)
+pydantic-settings==2.11.0            # Latest settings management (updated from 2.4.0)
 
 # ======================================================================
 # CACHING & PERFORMANCE (2025+ Updates)
 # ======================================================================
 cachetools==5.4.0                    # Updated memory caching utilities
 aiocache==0.12.2                     # Async caching (stable)
-hiredis==3.0.0                       # Latest Redis protocol parser
 
 # ======================================================================
 # JSON & DATA SERIALIZATION (2025+ Updates)
@@ -91,29 +68,12 @@ msgpack==1.0.8                       # Updated binary serialization
 # SYSTEM MONITORING & HEALTH CHECKS (2025+ Updates)
 # ======================================================================
 psutil==6.0.0                        # Latest system resource monitoring
-py-cpuinfo==9.0.0                    # CPU information (stable)
-GPUtil==1.4.0                        # GPU monitoring (if applicable)
-
-# ======================================================================
-# MATHEMATICAL & STATISTICAL LIBRARIES (2025+ Updates)
-# ======================================================================
-scipy==1.14.0                        # Latest scientific computing
-scikit-learn==1.5.1                  # Updated machine learning
-statsmodels==0.14.2                  # Latest statistical analysis
 
 # ======================================================================
 # DATE & TIME HANDLING (2025+ Updates)
 # ======================================================================
 python-dateutil==2.9.0.post0         # Updated date/time extensions
 pytz==2024.1                         # Latest timezone database
-pendulum==3.0.0                      # Major version update with improvements
-
-# ======================================================================
-# VALIDATION & TYPE CHECKING (2025+ Updates)
-# ======================================================================
-email-validator==2.2.0               # Updated email validation
-phonenumbers==8.13.43                # Latest phone number validation
-validators==0.33.0                   # Updated general purpose validators
 
 # ======================================================================
 # DEVELOPMENT & TESTING (2025+ Updates)
@@ -131,38 +91,50 @@ pre-commit==3.8.0                    # Updated Git hooks framework
 # ======================================================================
 # PRODUCTION SERVER (2025+ Updates)
 # ======================================================================
-gunicorn==22.0.0                     # Latest WSGI server for production
+gunicorn==23.0.0                     # Latest WSGI server for production (updated from 22.0.0)
 
 # ======================================================================
-# UTILITIES & HELPERS (2025+ Updates)
+# CORE UTILITIES (Required by codebase)
 # ======================================================================
-click==8.1.7                         # Command line interface (stable)
-rich==13.7.1                         # Updated rich text and formatting
-typer==0.12.3                        # Updated modern CLI framework
-tqdm==4.66.5                         # Updated progress bars
-python-slugify==8.0.4                # Updated URL-safe string conversion
-
-# ======================================================================
-# NETWORK & COMMUNICATION (2025+ Updates)
-# ======================================================================
-pika==1.3.2                          # RabbitMQ client (stable)
-kombu==5.4.0                         # Updated messaging library
-celery==5.4.0                        # Updated distributed task queue
-
-# ======================================================================
-# NEW 2025+ ADDITIONS FOR ENHANCED FUNCTIONALITY
-# ======================================================================
-# uv==0.2.26                           # Ultra-fast Python package installer (commented - causes conflicts)
-polars==1.4.1                        # Fast DataFrame library (pandas alternative)
-httpcore==1.0.5                      # Core HTTP functionality
-anyio==4.4.0                         # High-level async concurrency
-# trio==0.26.0                         # Async I/O library (commented - potential conflicts with asyncio)
+httpcore==1.0.9                      # Core HTTP functionality (updated from 1.0.5)
+anyio>=4.11.0,<5.0.0                 # High-level async concurrency (compatible with MCP)
 sniffio==1.3.1                       # Detect async library
-# contextlib2==21.6.0                  # Backported context utilities (not needed in Python 3.13+)
-typing-extensions==4.12.2            # Extended typing support
+typing-extensions==4.15.0            # Extended typing support (updated from 4.12.2)
 
 # ======================================================================
-# CONTAINER & DEPLOYMENT UTILITIES (2025+ Additions)
+# REMOVED PACKAGES (Unused or Deprecated)
 # ======================================================================
-docker==7.1.0                        # Docker SDK for Python
-kubernetes==30.1.0                   # Kubernetes client library
+# python-jose==3.3.0                 # REMOVED: CVE-2024-33663, CVE-2024-33664 - NOT USED
+# passlib[bcrypt]==1.7.4             # REMOVED: NOT IMPORTED
+# bcrypt==4.2.0                      # REMOVED: NOT IMPORTED
+# asyncio-mqtt==0.16.2               # REMOVED: Deprecated, renamed to aiomqtt - NOT USED
+# aioredis==2.0.1                    # REMOVED: Deprecated, use redis[asyncio] instead
+# ta-lib==0.4.32                     # REMOVED: NOT IMPORTED anywhere
+# polars==1.4.1                      # REMOVED: NOT IMPORTED
+# GPUtil==1.4.0                      # REMOVED: NOT IMPORTED
+# dynaconf==3.2.6                    # REMOVED: NOT IMPORTED
+# structlog==24.4.0                  # REMOVED: NOT IMPORTED
+# loguru==0.7.2                      # REMOVED: NOT IMPORTED
+# prometheus-client==0.21.0          # REMOVED: NOT IMPORTED
+# sentry-sdk[fastapi]==2.12.0        # REMOVED: Config mentions but NOT IMPORTED
+# opentelemetry-api==1.26.0          # REMOVED: NOT IMPORTED
+# opentelemetry-sdk==1.26.0          # REMOVED: NOT IMPORTED
+# pika==1.3.2                        # REMOVED: NOT IMPORTED (RabbitMQ)
+# kombu==5.4.0                       # REMOVED: NOT IMPORTED (messaging)
+# celery==5.4.0                      # REMOVED: NOT IMPORTED (task queue)
+# docker==7.1.0                      # REMOVED: NOT IMPORTED (only comment reference)
+# kubernetes==30.1.0                 # REMOVED: NOT IMPORTED
+# email-validator==2.2.0             # REMOVED: NOT IMPORTED
+# phonenumbers==8.13.43              # REMOVED: NOT IMPORTED
+# validators==0.33.0                 # REMOVED: NOT IMPORTED
+# python-slugify==8.0.4              # REMOVED: NOT IMPORTED
+# py-cpuinfo==9.0.0                  # REMOVED: NOT IMPORTED
+# pendulum==3.0.0                    # REMOVED: NOT IMPORTED
+# rich==13.7.1                       # REMOVED: NOT IMPORTED
+# typer==0.12.3                      # REMOVED: NOT IMPORTED
+# tqdm==4.66.5                       # REMOVED: NOT IMPORTED
+# scikit-learn==1.5.1                # REMOVED: NOT IMPORTED
+# statsmodels==0.14.2                # REMOVED: NOT IMPORTED
+# scipy==1.14.0                      # REMOVED: NOT IMPORTED
+# python-multipart==0.0.9            # REMOVED: Transitive dependency of fastapi
+# cryptography==43.0.0               # REMOVED: NOT IMPORTED (if JWT needed, re-add)

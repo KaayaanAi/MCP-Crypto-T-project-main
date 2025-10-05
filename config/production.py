@@ -82,15 +82,15 @@ class WhatsAppConfig:
 class ExchangeConfig:
     """Cryptocurrency exchange API configuration"""
     # Binance API
-    binance_api_key: Optional[str] = field(default_factory=lambda: os.getenv("BINANCE_API_KEY"))
-    binance_api_secret: Optional[str] = field(default_factory=lambda: os.getenv("BINANCE_API_SECRET"))
+    binance_api_key: str | None = field(default_factory=lambda: os.getenv("BINANCE_API_KEY"))
+    binance_api_secret: str | None = field(default_factory=lambda: os.getenv("BINANCE_API_SECRET"))
     binance_testnet: bool = field(default_factory=lambda: os.getenv("BINANCE_TESTNET", "false").lower() == "true")
     
     # CoinGecko API
-    coingecko_api_key: Optional[str] = field(default_factory=lambda: os.getenv("COINGECKO_API_KEY"))
+    coingecko_api_key: str | None = field(default_factory=lambda: os.getenv("COINGECKO_API_KEY"))
     
     # CoinMarketCap API
-    coinmarketcap_api_key: Optional[str] = field(default_factory=lambda: os.getenv("COINMARKETCAP_API_KEY"))
+    coinmarketcap_api_key: str | None = field(default_factory=lambda: os.getenv("COINMARKETCAP_API_KEY"))
     
     # Rate limiting
     api_request_timeout: int = field(default_factory=lambda: int(os.getenv("API_REQUEST_TIMEOUT", "10")))
@@ -108,7 +108,7 @@ class SecurityConfig:
     jwt_expiration_hours: int = field(default_factory=lambda: int(os.getenv("JWT_EXPIRATION_HOURS", "24")))
     
     # Encryption
-    encryption_key: Optional[str] = field(default_factory=lambda: os.getenv("ENCRYPTION_KEY"))
+    encryption_key: str | None = field(default_factory=lambda: os.getenv("ENCRYPTION_KEY"))
     
     # API security
     api_key_length: int = 32
@@ -124,14 +124,14 @@ class MonitoringConfig:
         "LOG_FORMAT", 
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     ))
-    log_file: Optional[str] = field(default_factory=lambda: os.getenv("LOG_FILE"))
+    log_file: str | None = field(default_factory=lambda: os.getenv("LOG_FILE"))
     
     # Metrics
     enable_metrics: bool = field(default_factory=lambda: os.getenv("ENABLE_METRICS", "true").lower() == "true")
     metrics_port: int = field(default_factory=lambda: int(os.getenv("METRICS_PORT", "8080")))
     
     # Error tracking
-    sentry_dsn: Optional[str] = field(default_factory=lambda: os.getenv("SENTRY_DSN"))
+    sentry_dsn: str | None = field(default_factory=lambda: os.getenv("SENTRY_DSN"))
     enable_sentry: bool = field(default_factory=lambda: bool(os.getenv("SENTRY_DSN")))
     
     # Health checks
@@ -232,7 +232,7 @@ class ProductionConfig:
         if errors:
             raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")
     
-    def get_database_config(self) -> Dict[str, Any]:
+    def get_database_config(self) -> dict[str, Any]:
         """Get database configuration as dictionary"""
         return {
             'mongodb_uri': self.database.mongodb_uri,
@@ -244,7 +244,7 @@ class ProductionConfig:
             'postgres_pool_max': self.database.postgres_pool_max
         }
     
-    def get_logging_config(self) -> Dict[str, Any]:
+    def get_logging_config(self) -> dict[str, Any]:
         """Get logging configuration"""
         return {
             'version': 1,
@@ -302,7 +302,7 @@ def get_config_for_environment(env: str = None) -> ProductionConfig:
     return ProductionConfig()
 
 # Configuration validation utility
-def validate_environment_variables() -> Dict[str, Any]:
+def validate_environment_variables() -> dict[str, Any]:
     """Validate all required environment variables"""
     required_vars = [
         "MONGODB_URI",

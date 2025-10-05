@@ -10,7 +10,7 @@ import json
 import logging
 import time
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from datetime import datetime, timezone
 from dataclasses import dataclass
 import os
@@ -27,7 +27,7 @@ try:
     from starlette.middleware.base import BaseHTTPMiddleware
     from starlette.requests import Request as StarletteRequest
 except ImportError:
-    print("FastAPI not installed. Run: pip install fastapi uvicorn")
+    sys.stderr.write("FastAPI not installed. Run: pip install fastapi uvicorn\n")
     sys.exit(1)
 
 # Import our standalone MCP server
@@ -59,8 +59,8 @@ class MCPRequest(BaseModel):
     """Validated MCP JSON-RPC 2.0 request model"""
     jsonrpc: str = Field(..., pattern="^2\\.0$")
     method: str = Field(..., min_length=1, max_length=100)
-    params: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    id: Optional[str] = Field(None, max_length=100)
+    params: dict[str, Any | None] = Field(default_factory=dict)
+    id: str | None = Field(None, max_length=100)
 
     @field_validator('method')
     @classmethod
@@ -221,7 +221,7 @@ class EnterpriseMCPWrapper:
             try:
                 start_time = time.time()
                 self.mcp_server = MCPCryptoServer()
-                await self.mcp_server.startup()
+                await self.mcp_server.initialize()
                 self.initialization_time = time.time() - start_time
                 self.initialized = True
                 logger.info(f"MCP server initialized in {self.initialization_time:.3f}s")
@@ -232,7 +232,7 @@ class EnterpriseMCPWrapper:
                     detail="Service temporarily unavailable - initialization failed"
                 )
 
-    async def handle_mcp_request(self, request_data: MCPRequest) -> Dict[str, Any]:
+    async def handle_mcp_request(self, request_data: MCPRequest) -> dict[str, Any]:
         """Handle MCP JSON-RPC request with enhanced error handling"""
 
         if not self.initialized:
@@ -287,7 +287,7 @@ class EnterpriseMCPWrapper:
             logger.error(f"Internal error handling {method}: {e}")
             return self._create_error_response(request_id, -32603, "Internal error", "An unexpected error occurred")
 
-    async def _handle_initialize(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_initialize(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle initialize request with validation"""
         protocol_version = params.get("protocolVersion", "2024-11-05")
 
@@ -317,7 +317,7 @@ class EnterpriseMCPWrapper:
             }
         }
 
-    async def _handle_tools_list(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_tools_list(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle tools/list with pagination support"""
         try:
             tools = await self.mcp_server.get_tool_schemas()
@@ -332,7 +332,7 @@ class EnterpriseMCPWrapper:
         except Exception as e:
             raise Exception(f"Failed to retrieve tools: {e}")
 
-    async def _handle_tools_call(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_tools_call(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle tools/call with enhanced validation"""
         tool_name = params.get("name")
         tool_args = params.get("arguments", {})
@@ -367,11 +367,11 @@ class EnterpriseMCPWrapper:
         except asyncio.TimeoutError:
             raise TimeoutError(f"Tool execution timed out: {tool_name}")
 
-    async def _handle_resources_list(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_resources_list(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle resources/list"""
         return {"resources": []}
 
-    async def _handle_resources_read(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_resources_read(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle resources/read"""
         uri = params.get("uri")
         if not uri:
@@ -387,7 +387,7 @@ class EnterpriseMCPWrapper:
             ]
         }
 
-    def _create_success_response(self, request_id: Optional[str], result: Dict[str, Any]) -> Dict[str, Any]:
+    def _create_success_response(self, request_id: str | None, result: dict[str, Any]) -> dict[str, Any]:
         """Create successful JSON-RPC response"""
         return {
             "jsonrpc": "2.0",
@@ -395,7 +395,7 @@ class EnterpriseMCPWrapper:
             "result": result
         }
 
-    def _create_error_response(self, request_id: Optional[str], code: int, message: str, data: Optional[str] = None) -> Dict[str, Any]:
+    def _create_error_response(self, request_id: str | None, code: int, message: str, data: str | None = None) -> dict[str, Any]:
         """Create error JSON-RPC response"""
         error = {
             "code": code,
@@ -596,13 +596,12 @@ async def root():
 async def main():
     """Run the enterprise HTTP server"""
 
-    print("🚀 Starting MCP Crypto Trading Enterprise Server")
-    print("📊 Enhanced with performance monitoring and security hardening")
-    print("📡 HTTP endpoint: http://localhost:8000/mcp")
-    print("💊 Health check: http://localhost:8000/health")
-    print("📈 Metrics: http://localhost:8000/metrics")
-    print("📚 Documentation: http://localhost:8000/docs")
-    print()
+    logger.info("Starting MCP Crypto Trading Enterprise Server")
+    logger.info("Enhanced with performance monitoring and security hardening")
+    logger.info("HTTP endpoint: http://localhost:8000/mcp")
+    logger.info("Health check: http://localhost:8000/health")
+    logger.info("Metrics: http://localhost:8000/metrics")
+    logger.info("Documentation: http://localhost:8000/docs")
 
     # Run server with production configuration
     config = uvicorn.Config(

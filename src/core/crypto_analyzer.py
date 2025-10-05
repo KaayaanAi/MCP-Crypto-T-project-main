@@ -2,10 +2,10 @@ import asyncio
 import aiohttp
 import pandas as pd
 import numpy as np
+import logging
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 import os
-from dataclasses import asdict
 
 import sys
 from pathlib import Path
@@ -19,7 +19,66 @@ from src.clients.binance_client import BinanceClient
 from src.clients.coingecko_client import CoinGeckoClient
 from src.clients.coinmarketcap_client import CoinMarketCapClient
 from .technical_indicators import TechnicalIndicators
-from legacy.response_models import *
+
+# Since legacy.response_models doesn't exist, we need to check what models are actually available
+# These models should be imported from the models that actually exist
+try:
+    from legacy.response_models import (
+        MarketAnalysis, VolatilityIndicators, OrderBlock, FairValueGap,
+        BreakOfStructure, ChangeOfCharacter, LiquidityZone, AnchoredVWAP,
+        RSIDivergence, Recommendation, ComparativeAnalysis, CryptoAnalysisResponse
+    )
+except ImportError:
+    # Fallback to stub classes if legacy models don't exist
+    from dataclasses import dataclass
+    from typing import Any
+
+    @dataclass
+    class MarketAnalysis:
+        trend: str
+        volatility: str
+        confidence: float
+
+    @dataclass
+    class VolatilityIndicators:
+        bollinger_bands_width: float
+        average_true_range: float
+        volatility_level: str
+
+    @dataclass
+    class Recommendation:
+        action: str
+        confidence: float
+        reasoning: str
+        target_price: float | None = None
+        stop_loss: float | None = None
+
+    @dataclass
+    class ComparativeAnalysis:
+        comparison_symbol: str
+        correlation: float
+        relative_strength: str
+        trend_alignment: bool
+
+    @dataclass
+    class CryptoAnalysisResponse:
+        symbol: str
+        timestamp: str
+        timeframe: str
+        market_analysis: MarketAnalysis
+        volatility_indicators: VolatilityIndicators
+        order_blocks: list[Any]
+        fair_value_gaps: list[Any]
+        break_of_structure: list[Any]
+        change_of_character: list[Any]
+        liquidity_zones: list[Any]
+        anchored_vwap: list[Any]
+        rsi_divergence: list[Any]
+        recommendation: Recommendation
+        comparative_analysis: Any
+        metadata: dict[str, Any]
+
+logger = logging.getLogger(__name__)
 
 class CryptoAnalyzer:
     def __init__(self):
@@ -31,7 +90,7 @@ class CryptoAnalyzer:
     async def analyze(
         self, 
         symbol: str, 
-        comparison_symbol: Optional[str] = None,
+        comparison_symbol: str | None = None,
         timeframe: str = "1h",
         limit: int = 500
     ) -> CryptoAnalysisResponse:
@@ -113,7 +172,7 @@ class CryptoAnalyzer:
                 "market_cap": market_cap_data.get("market_cap", 0)
             }
         except Exception as e:
-            print(f"Error fetching market data: {e}")
+            logger.error(f"Error fetching market data: {e}")
             return {"price_change_24h": 0, "volume_24h": 0, "market_cap": 0}
     
     async def _perform_technical_analysis(self, df: pd.DataFrame, symbol: str) -> Dict:
@@ -188,7 +247,7 @@ class CryptoAnalyzer:
                 trend_alignment=main_trend == comp_trend
             )
         except Exception as e:
-            print(f"Error in comparative analysis: {e}")
+            logger.error(f"Error in comparative analysis: {e}")
             return ComparativeAnalysis(
                 comparison_symbol=comparison_symbol,
                 correlation=0.0,
@@ -233,15 +292,30 @@ class CryptoAnalyzer:
             action = "HOLD"
         
         confidence = min(abs(total_score) * 100, 100)
-        
+
+        # Calculate target and stop loss based on current price and action
+        current_price = float(df['close'].iloc[-1])
+        atr = analysis['volatility_indicators'].average_true_range
+
+        target_price = None
+        stop_loss = None
+        if action == "BUY":
+            target_price = current_price * 1.03  # 3% target
+            stop_loss = current_price - (atr * 1.5)  # 1.5 ATR stop
+        elif action == "SELL":
+            target_price = current_price * 0.97  # 3% target
+            stop_loss = current_price + (atr * 1.5)  # 1.5 ATR stop
+
         return Recommendation(
             action=action,
             confidence=confidence,
             reasoning=f"Based on trend analysis ({analysis['market_analysis'].trend}), "
                      f"volatility ({analysis['market_analysis'].volatility}), "
-                     f"and technical indicators. Score: {total_score:.2f}"
+                     f"and technical indicators. Score: {total_score:.2f}",
+            target_price=float(target_price) if target_price else None,
+            stop_loss=float(stop_loss) if stop_loss else None
         )
     
-    async def get_available_symbols(self) -> List[str]:
+    async def get_available_symbols(self) -> list[str]:
         """Get list of available trading symbols"""
         return await self.binance.get_exchange_info()
